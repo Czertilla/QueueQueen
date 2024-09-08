@@ -1,0 +1,6 @@
+.venv
+.env
+.env-non-dev
+**/__pycache__/
+*.db
+.vscode

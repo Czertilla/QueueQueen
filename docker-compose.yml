@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  app:
+    # TODO replace all "QueueQueen" by dir name 
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: QueueQueen
+    command: ["/QueueQueen/docker/app.sh"]
+    ports:
+      - 8000:8000
+    volumes:
+      - type: bind
+        source: ./queuen.db
+        target: /QueueQueen/queuen.db

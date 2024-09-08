@@ -1,0 +1,1 @@
+# FastApi web app template
