@@ -20,7 +20,3 @@ class QueueORM(Base):
         back_populates="queue"
     )
 
-    users: Mapped[list["UserORM"]] = relationship(
-        back_populates="queues",
-        secondary="positions"
-    )

@@ -1,7 +1,5 @@
 
-from typing import Annotated
-from pydantic import BaseModel, Field
-from aiogram.types.user import User
+from pydantic import BaseModel
 
 class SUser(BaseModel):
     username: str

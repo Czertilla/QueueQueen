@@ -9,7 +9,7 @@ services:
     container_name: QueueQueen
     command: ["/QueueQueen/docker/app.sh"]
     ports:
-      - 8000:8000
+      - 8080:8080
     volumes:
       - type: bind
         source: ./queuen.db

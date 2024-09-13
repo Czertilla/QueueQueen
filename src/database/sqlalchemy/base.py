@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from uuid import UUID
-from sqlalchemy import Result, insert, select, update
+from sqlalchemy import Result, delete, insert, select, update
 from utils.absract.repository import AbstractRepository
 
 
@@ -82,9 +82,10 @@ class SQLAlchemyRepository(AbstractRepository):
         )
         return (await self.execute(stmt, flush=False)).scalar_one()
 
-    async def update(self, data: dict):
+    async def update(self, data: dict, id: UUID):
         stmt = (
             update(self.model)
+            .where(self.model.id == id)
             .values(**data)
         )
         return (await self.execute(stmt))
@@ -104,3 +105,9 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def check_existence(self, id: UUID) -> bool:
         return (await self.find_by_id(id)) is not None
+    
+    async def delete(self, id: UUID) -> None:
+        await self.execute(
+            delete(self.model)
+            .where(self.model.id == id)
+        )

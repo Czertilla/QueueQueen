@@ -25,9 +25,5 @@ class UserORM(Base):
     positions: Mapped[list[PositionORM]] = relationship(
         back_populates="user"
     )
-    queues: Mapped[list["QueueORM"]] = relationship(
-        back_populates="users",
-        secondary="positions"
-    )
 
 

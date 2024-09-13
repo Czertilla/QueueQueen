@@ -2,6 +2,6 @@
 
 alembic upgrade head
 
-cd src
+export PYTHONPATH=src 
 
-gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 --log-config=../logs/log.ini
+gunicorn src.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8080

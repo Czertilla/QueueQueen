@@ -13,7 +13,7 @@ class UserService(BaseService):
             self.uow.users.check_username(value)
 
     
-    async def check_user(self, user: User):
+    async def check_user(self, user: User) -> None:
         async with self.uow:
             user_data: dict = user.model_dump(mode="python")
             user_data.update({
@@ -25,7 +25,9 @@ class UserService(BaseService):
                 user_data.update({
                     "id": user_model.id
                 })
-                await self.uow.users.update(user_data)
+                id: UUID = user_data.pop('id')
+                user_data.pop('tgid')
+                await self.uow.users.update(user_data, id)
             else:
                 await self.uow.users.add_one(user_data)
             await self.uow.commit(True)

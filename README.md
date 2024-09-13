@@ -1,1 +1,1 @@
-# FastApi web app template
+# QueueQueen telegram bot

@@ -1,9 +1,7 @@
-from typing import AsyncGenerator
 from uuid import UUID
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
-from database import new_session, BaseRepo
+from sqlalchemy.orm import selectinload
+from database import BaseRepo
 from logging import getLogger
 
 from models.users import UserORM
@@ -31,4 +29,13 @@ class UserRepo(BaseRepo):
             )
         ).scalar_one_or_none()
     
+
+    async def get_with_positions(self, id: UUID) -> model|None:
+         return (
+            await self.execute(
+                select(self.model)
+                .where(self.model.id == id)
+                .options(selectinload(self.model.positions))
+            )
+        ).scalar_one_or_none()
     
