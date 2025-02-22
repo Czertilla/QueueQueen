@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-load_dotenv()
+load_dotenv()   
 
 class Settings(BaseSettings):
     APP_NAME: str = "FASAPI APP"

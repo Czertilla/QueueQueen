@@ -26,8 +26,7 @@ class QueueService(BaseService):
                         answer += "\n empty"
                     for p, pos in enumerate(queue_data.positions):
                         pos.position = p
-                        answer += f"\n {pos.position} - {pos.user.first_name 
-                                                         or ''} {pos.user.last_name or ''} (@{pos.user.username})"
+                        answer += f"\n {pos.position} - {pos.user.first_name or ''} {pos.user.last_name or ''} (@{pos.user.username})"
             elif from_admin:
                 queue_id = await self.uow.queues.add_one({
                     "chat_id": chat_id
