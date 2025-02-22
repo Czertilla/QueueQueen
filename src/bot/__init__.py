@@ -1,2 +1,3 @@
-from .bot import Bot
-bot = Bot()
+from .bot import bot, dp
+
+all = ['bot', 'dp']
