@@ -1,6 +1,7 @@
 from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.filters import CommandStart, Command
+from bot.messages.messages import MessageTextBuilder
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
@@ -14,10 +15,13 @@ async def start(message: Message) -> None:
     user = message.from_user
     await UserService(uow := AllUOW()).check_user(user)
     member = await message.chat.get_member(user.id)
+    message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         await message.answer(await QueueService(uow).get_queue_list(message.chat.id, True))
     else:
-        await message.answer(await i18n_manager.get("not_admin_alert", "en", username=message.from_user.username))
+        await message.answer(
+            await message_builder.on_not_admin(message.from_user.username)
+        )
 
 
 @router.message(Command("join"))
@@ -30,12 +34,13 @@ async def join(message: Message) -> None:
 @router.message(Command("quit"))
 async def quit(message: Message, bot: Bot) -> None:
     user = message.from_user
+    message_builder = MessageTextBuilder()
     result = await QueueService(AllUOW()).remove_user(user, message.chat.id)
     if result[1] is not None:
         await bot.send_message(
             chat_id=result[1],
             # text=f"it`s your turn now. Don`t forget quit queue or just push this button",
-            text=f"it`s your turn now Don`t forget quit queue"
+            text=await message_builder.on_your_turn_ntf()
         )
     await message.answer(result[0])
 
@@ -52,7 +57,10 @@ async def clear(message: Message) -> None:
     user = message.from_user
     await UserService(uow := AllUOW()).check_user(user)
     member = await message.chat.get_member(user.id)
+    message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         await message.answer(await QueueService(uow).clear_queue(message.chat.id))
     else:
-        await message.answer(await i18n_manager.get("not_admin_alert", "en", username=message.from_user.username))
+        await message.answer(
+            await message_builder.on_not_admin(message.from_user.username)
+        )
