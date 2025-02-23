@@ -6,12 +6,13 @@ en:
   new_position_ntf: '@%{username}, now your position is %{pos_num}'
   new_queue: 'New queue created (id: <code>{queue_id}</code>)'
   new_queue_err: some problem with creating new queue
+  no_queue: no queue in this chat
   not_admin_alert: |-
     @%{username}, you are not admin. 
     Add this bot to chat, where you`re admin
   queue_404: queue not found
-  queue_cleared: the queue {queue.id} has been cleared
-  queue_list_header: 'Queue <code>{queue_data.id}</code>:'
+  queue_cleared: the queue {queue_id} has been cleared
+  queue_list_header: 'Queue <code>{queue_id}</code>:'
   user_404: user not found
-  user_not_in_queue: user @{user.username} not in queue <code>{queue.id}</code>
-  user_removed: user @{user.username} removed from queue <code>{queue.id}</code>
+  user_not_in_queue: user @{username} not in queue <code>{queue_id}</code>
+  user_removed: user @{username} removed from queue <code>{queue_id}</code>

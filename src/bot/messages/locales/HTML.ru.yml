@@ -2,17 +2,17 @@
 ru:
   already_in_queue: пользователь @%{username} уже в очереди
   empty: пусто
-  head_ntf: ваша очередь! Не забудьте выйти из очереди
-  new_position_ntf: "@%{username}, теперь ваша позиция %{pos_num}"
-  new_queue: "Создана новая очередь (id: <code>{queue_id}</code>)"
+  head_ntf: К вам подошла очередь! Не забудьте выйти из нее
+  new_position_ntf: '@%{username}, теперь ваша позиция %{pos_num}'
+  new_queue: 'Создана новая очередь (id: <code>{queue_id}</code>)'
   new_queue_err: проблема с созданием новой очереди
   no_queue: в этом чате нет очереди
   not_admin_alert: |-
     @%{username}, вы не администратор. 
-    Добавьте этого бота в чат, где вы администратор
+    Добавьте этого бота в чат, где вы являетесь администратором
   queue_404: очередь не найдена
-  queue_cleared: очередь {queue.id} очищена
-  queue_list_header: "Очередь <code>{queue_data.id}</code>:"
+  queue_cleared: очередь {queue_id} очищена
+  queue_list_header: 'Очередь <code>{queue_id}</code>:'
   user_404: пользователь не найден
-  user_not_in_queue: пользователь @{user.username} не в очереди <code>{queue.id}</code>
-  user_removed: пользователь @{user.username} удален из очереди <code>{queue.id}</code>
+  user_not_in_queue: пользователь @{username} не в очереди <code>{queue_id}</code>
+  user_removed: пользователь @{username} удален из очереди <code>{queue_id}</code>
