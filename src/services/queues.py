@@ -4,6 +4,7 @@ from models.positions import PositionORM
 from models.queues import QueueORM
 from models.users import UserORM
 from aiogram.types.user import User
+from schemas.queues import SQueueList
 from utils.absract.service import BaseService
 
 logger = getLogger(__name__)
@@ -14,14 +15,14 @@ class QueueService(BaseService):
             self.uow.users.check_username(value)
 
 
-    async def check_chat(self, chat_id: int, from_admin: bool = False) -> str:
+    async def get_queue_list(self, chat_id: int, from_admin: bool = False) -> SQueueList:
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
                 if isinstance(queue_data, QueueORM):
                     answer = f"Queue <code>{queue_data.id}</code>:"
-                    queue_data.positions.sort(key =  lambda pos: pos.created_at)
+                    queue_data.positions.sort(key = lambda pos: pos.created_at)
                     if not len(queue_data.positions):
                         answer += "\n empty"
                     for p, pos in enumerate(queue_data.positions):

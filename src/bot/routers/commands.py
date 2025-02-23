@@ -14,7 +14,7 @@ async def start(message: Message) -> None:
     await UserService(uow := AllUOW()).check_user(user)
     member = await message.chat.get_member(user.id)
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
-        await message.answer(await QueueService(uow).check_chat(message.chat.id, True))
+        await message.answer(await QueueService(uow).get_queue_list(message.chat.id, True))
     else:
         await message.answer(f"@{message.from_user.username}, you are not admin. Add this bot to chat, where you`re admin")
 
@@ -43,11 +43,11 @@ async def quit(message: Message, bot: Bot) -> None:
 async def check(message: Message) -> None:
     user = message.from_user
     await UserService(uow := AllUOW()).check_user(user)
-    await message.answer(await QueueService(uow).check_chat(message.chat.id))
+    await message.answer(await QueueService(uow).get_queue_list(message.chat.id))
 
 
 @router.message(Command("clear"))
-async def check(message: Message) -> None:
+async def clear(message: Message) -> None:
     user = message.from_user
     await UserService(uow := AllUOW()).check_user(user)
     member = await message.chat.get_member(user.id)
