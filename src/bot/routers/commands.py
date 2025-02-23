@@ -4,6 +4,7 @@ from aiogram.filters import CommandStart, Command
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
+from ..messages.localization import i18n_manager
 
 router = Router()
 
@@ -16,7 +17,7 @@ async def start(message: Message) -> None:
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         await message.answer(await QueueService(uow).get_queue_list(message.chat.id, True))
     else:
-        await message.answer(f"@{message.from_user.username}, you are not admin. Add this bot to chat, where you`re admin")
+        await message.answer(await i18n_manager.get("not_admin_alert", "en", username=message.from_user.username))
 
 
 @router.message(Command("join"))
@@ -54,4 +55,4 @@ async def clear(message: Message) -> None:
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         await message.answer(await QueueService(uow).clear_queue(message.chat.id))
     else:
-        await message.answer(f"@{message.from_user.username}, you are not admin. Add this bot to chat, where you`re admin")
+        await message.answer(await i18n_manager.get("not_admin_alert", "en", username=message.from_user.username))
