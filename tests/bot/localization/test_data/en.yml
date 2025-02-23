@@ -1,0 +1,2 @@
+start_message: "Hello, {username}! Welcome to our bot."
+help_message: "Here are the available commands:\n/start - Start the bot\n/help - Show this message"
