@@ -18,9 +18,11 @@ class Localization:
         assert isinstance(i18n.load_path, list)
         i18n.load_path.append(str(self.translations_path))
         i18n.set("fallback", self.default_lang)
-        i18n.set('filename_format', '{locale}.{format}')
 
-    async def get(self, key: str, lang: str = None, **kwargs) -> str:
+    async def get(
+            self, key: str, lang: str = None, 
+            md: str = "HTML", **kwargs
+    ) -> str:
         """Asynchronously retrieves the localization string with the cache."""
         lang = lang or self.default_lang
         cache_key = f"i18n:{lang}:{key}"
@@ -32,7 +34,7 @@ class Localization:
 
         # Uploading the translation
         i18n.set("locale", lang)
-        text = i18n.t(key, **kwargs)
+        text = i18n.t(f"{md}.{key}", **kwargs)
 
         # We put it in the cache with TTL = 5 minutes
         await self.cache.set(cache_key, text, ttl=self.ttl)
