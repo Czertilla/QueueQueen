@@ -10,4 +10,4 @@ bot = Bot(token=settings.BOT_TG_TOKEN, default=DefaultBotProperties(parse_mode=s
 dp = Dispatcher(storage=MemoryStorage())
 
 # register_middlewares(dp)
-register_routers(dp)
+# register_routers(dp)

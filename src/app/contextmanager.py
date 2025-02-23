@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import sys
 
 from utils.settings import Settings
-from bot import bot
+from bot import bot, dp
 
 # from fastapi_cache import FastAPICache
 # from fastapi_cache.backends.redis import RedisBackend
@@ -16,7 +16,7 @@ async def startup(app: FastAPI):
     # redis = aioredis.from_url("redis://localhost")
     # FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     await bot.set_webhook(url=f"{settings.BOT_TG_WEBHOOK}/webhook",
-                          allowed_updates=bot.dp.resolve_used_update_types(),
+                          allowed_updates=dp.resolve_used_update_types(),
                           drop_pending_updates=True)
     ...
 

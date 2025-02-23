@@ -7,10 +7,9 @@ from services.queues import QueueService
 from services.users import UserService
 from utils.settings import Settings
 from api.dependencies import AllUOW
-from bot import bot
+from bot import bot, dp
 settings = Settings()
 
-dp = bot.dp
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
 
