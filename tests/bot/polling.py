@@ -1,6 +1,5 @@
 import asyncio
 import sys
-import sys
 import os
 
 parent_directory = os.path.abspath(
