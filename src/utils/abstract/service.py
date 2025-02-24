@@ -1,4 +1,4 @@
-from utils.absract.unit_of_work import ABCUnitOfWork
+from utils.abstract.unit_of_work import ABCUnitOfWork
 
 
 class BaseService:

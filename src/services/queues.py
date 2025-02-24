@@ -5,7 +5,7 @@ from models.queues import QueueORM
 from models.users import UserORM
 from aiogram.types.user import User
 from schemas.queues import SQueueList
-from utils.absract.service import BaseService
+from utils.abstract.service import BaseService
 
 logger = getLogger(__name__)
 

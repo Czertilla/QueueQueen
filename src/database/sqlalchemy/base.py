@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from uuid import UUID
 from sqlalchemy import Result, delete, insert, select, update
-from utils.absract.repository import AbstractRepository
+from utils.abstract.repository import AbstractRepository
 
 
 class IdMinxin:

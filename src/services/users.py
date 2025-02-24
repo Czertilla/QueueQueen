@@ -2,7 +2,7 @@ from logging import getLogger
 from uuid import UUID
 from models.users import UserORM
 from schemas.users import SUser
-from utils.absract.service import BaseService
+from utils.abstract.service import BaseService
 from aiogram.types.user import User
 
 logger = getLogger(__name__)

@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 from database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database.sqlalchemy.base import IdMinxin
+from database.sqlalchemy.base import IdMixin
 from models.positions import PositionORM
 
 if TYPE_CHECKING:

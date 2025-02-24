@@ -1,5 +1,5 @@
 from database import new_session
-from utils.absract.unit_of_work import ABCUnitOfWork
+from utils.abstract.unit_of_work import ABCUnitOfWork
 from logging import getLogger
 
 logger = getLogger(__name__)
