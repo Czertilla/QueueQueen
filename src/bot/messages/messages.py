@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import UUID
+from uuid import UUID
 from schemas.queues import (
     SAddUserResponse,
     SQueueList,
