@@ -14,3 +14,6 @@ services:
       - type: bind
         source: ./queuen.db
         target: /QueueQueen/queuen.db
+      - type: bind
+        source: ./logs/
+        target: /QueueQueen/logs
