@@ -1,46 +1,49 @@
 {
-    "version": 1,
-    "disable_existing_loggers": false,
-    "formatters": {
-      "standart": {
-        "format": "%(asctime)s [%(process)s] %(levelname)-8s | %(module)s:%(funcName)s:%(lineno)s - %(message)s"
-      },
-      "colorized": {
-        "class": "src.loggers.config.ColorizedFormatter"
-      },
-      "json": {
-        "class": "src.loggers.config.JSONFormatter"
-      }
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "standart": {
+      "format": "%(asctime)s [%(process)s] %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)s - %(message)s"
     },
-    "handlers": {
-      "console": {
-        "class": "logging.StreamHandler",
-        "level": "INFO",
-        "formatter": "colorized",
-        "stream": "ext://sys.stdout"
-      },
-      "file_debug": {
-        "class": "logging.handlers.RotatingFileHandler",
-        "level": "DEBUG",
-        "formatter": "standart",
-        "maxBytes": 5000000,
-        "backupCount": 50,
-        "filename": "logs/app.log",
-        "encoding": "utf8"
-      },
-      "file_json": {
-        "class": "logging.handlers.RotatingFileHandler",
-        "level": "WARNING",
-        "formatter": "json",
-        "maxBytes": 5000000,
-        "backupCount": 3,
-        "filename": "logs/app.jsonl",
-        "encoding": "utf8"
-      }
+    "colorized": {
+      "class": "src.loggers.config.ColorizedFormatter"
     },
-    "root": {
-      "level": "DEBUG",
-      "handlers": ["console", "file_debug", "file_json"]
+    "json": {
+      "class": "src.loggers.config.JSONFormatter"
     }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "colorized",
+      "stream": "ext://sys.stdout"
+    },
+    "file_debug": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "DEBUG",
+      "formatter": "standart",
+      "maxBytes": 5000000,
+      "backupCount": 50,
+      "filename": "logs/app.log",
+      "encoding": "utf8"
+    },
+    "file_json": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "WARNING",
+      "formatter": "json",
+      "maxBytes": 5000000,
+      "backupCount": 3,
+      "filename": "logs/app.jsonl",
+      "encoding": "utf8"
+    }
+  },
+  "root": {
+    "level": "DEBUG",
+    "handlers": [
+      "console",
+      "file_debug",
+      "file_json"
+    ]
   }
-  
+}

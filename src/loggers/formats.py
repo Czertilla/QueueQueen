@@ -14,7 +14,7 @@ sb = lambda x: Style.BRIGHT+x+Style.NORMAL
 act = cg("%(asctime)s")
 prc = f"[{cc('%(process)s')}]"
 lvl = "%(levelname)-8s"
-loc = f"{cm('%(module)s')}:{cb('%(funcName)s')}:{cc('%(lineno)s')}"
+loc = f"{cm('%(name)s')}:{cb('%(funcName)s')}:{cc('%(lineno)s')}"
 msg = "%(message)s"
 exc = cr("%(exc_info)s")
 
