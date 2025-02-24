@@ -1,4 +1,4 @@
-from logging import getLogger
+from logging import getLogger, Logger
 from typing import Any
 from uuid import uuid4, UUID
 from sqlalchemy.types import JSON, DateTime
@@ -28,12 +28,12 @@ class Base(DeclarativeBase, IdMinxin):
 
 class SQLAlchemyRepository(AbstractRepository):
     model = Base
-    logger = getLogger("SQL")
+    logger: Logger
 
-    # def __new__(cls, *args, **kwargs):
-    #     if cls.logger is None:
-    #         cls.logger = getLogger(f"SQL.{cls.__name__}")
-    #     return super().__new__(cls)
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "logger"):
+            cls.logger = getLogger(f"SQL.{cls.__name__}")
+        return super().__new__(cls)
 
     def __init__(self, session: AsyncSession) -> None:
         super().__init__()
