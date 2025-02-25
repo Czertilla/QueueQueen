@@ -4,7 +4,7 @@ from models.positions import PositionORM
 from models.queues import QueueORM
 from models.users import UserORM
 from aiogram.types.user import User
-from schemas.queues import SQueueList
+from schemas.queues import SAddUserResponse, SQueueList
 from schemas.users import SUser
 from utils.abstract.service import BaseService
 
@@ -20,35 +20,44 @@ class QueueService(BaseService):
             self, chat_id: int, from_admin: bool = False
     ) -> SQueueList:
         response: SQueueList
+        logger.info(f"constructing queue list for {chat_id=}")
         async with self.uow:
+            logger.debug(f"getting queue data for {chat_id=}")
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
+                logger.debug(f"{queue.id=} exists")
+                logger.debug(f"loading positions data for {queue.id=}")
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
                 assert isinstance(queue_data, QueueORM)
-                assert all(
-                    isinstance(pos, PositionORM)
-                    for pos in queue_data.positions
-                )
+                logger.debug("sorting positions by timestamps")
                 positions = [SUser.model_validate(pos.user) for pos in sorted(
                     queue_data.positions, key=lambda pos: pos.created_at
                 )]
+                logger.debug(f"{len(positions)} positions retrieved ad sorted")
                 response = SQueueList(
                     id=queue_data.id, positions=positions
                 )
             elif from_admin:
+                logger.debug(
+                    f"queue for {chat_id=} not exists, creating by admin")
                 queue_id = await self.uow.queues.add_one({"chat_id": chat_id})
                 if isinstance(queue_id, UUID):
+                    logger.info(f"new {queue_id=} created for {chat_id=}")
                     response = SQueueList(
                         id=queue_id, positions=[], is_new=True
                     )
                 else:
+                    logger.warning(f"some problem during attemp to crete "+
+                                   f"queue for {chat_id=}")
                     response = SQueueList(id=None, positions=None, is_new=True)
             else:
+                logger.debug("queue for {chat_id=} not exists, no creating")
                 response = SQueueList(id=None, positions=None, is_new=False)
             await self.uow.commit(True)
+        logger.info(f"from args {chat_id=}, {from_admin=} got {response=}")
         return response
 
-    async def add_user(self, user: User, chat_id: int) -> str:
+    async def add_user(self, user: User, chat_id: int) -> SAddUserResponse:
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
