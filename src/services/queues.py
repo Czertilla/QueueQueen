@@ -5,42 +5,48 @@ from models.queues import QueueORM
 from models.users import UserORM
 from aiogram.types.user import User
 from schemas.queues import SQueueList
+from schemas.users import SUser
 from utils.abstract.service import BaseService
 
 logger = getLogger(__name__)
+
 
 class QueueService(BaseService):
     async def check_username(self, value: str) -> bool:
         async with self.uow:
             self.uow.users.check_username(value)
 
-
-    async def get_queue_list(self, chat_id: int, from_admin: bool = False) -> SQueueList:
+    async def get_queue_list(
+            self, chat_id: int, from_admin: bool = False
+    ) -> SQueueList:
+        response: SQueueList
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
-                if isinstance(queue_data, QueueORM):
-                    answer = f"Queue <code>{queue_data.id}</code>:"
-                    queue_data.positions.sort(key = lambda pos: pos.created_at)
-                    if not len(queue_data.positions):
-                        answer += "\n empty"
-                    for p, pos in enumerate(queue_data.positions):
-                        pos.position = p
-                        answer += f"\n {pos.position} - {pos.user.first_name or ''} {pos.user.last_name or ''} (@{pos.user.username})"
+                assert isinstance(queue_data, QueueORM)
+                assert all(
+                    isinstance(pos, PositionORM)
+                    for pos in queue_data.positions
+                )
+                positions = [SUser.model_validate(pos.user) for pos in sorted(
+                    queue_data.positions, key=lambda pos: pos.created_at
+                )]
+                response = SQueueList(
+                    id=queue_data.id, positions=positions
+                )
             elif from_admin:
-                queue_id = await self.uow.queues.add_one({
-                    "chat_id": chat_id
-                })
+                queue_id = await self.uow.queues.add_one({"chat_id": chat_id})
                 if isinstance(queue_id, UUID):
-                    answer = f"New queue created (id: <code>{queue_id}</code>)"
+                    response = SQueueList(
+                        id=queue_id, positions=[], is_new=True
+                    )
                 else:
-                    answer =  "some problem with creating new queue"
+                    response = SQueueList(id=None, positions=None, is_new=True)
             else:
-                return "no queue in this chat"
+                response = SQueueList(id=None, positions=None, is_new=False)
             await self.uow.commit(True)
-        return answer
-    
+        return response
 
     async def add_user(self, user: User, chat_id: int) -> str:
         async with self.uow:
@@ -60,9 +66,8 @@ class QueueService(BaseService):
                 return "queue not found"
             await self.uow.commit(True)
         return answer
-    
 
-    async def remove_user(self, user: User, chat_id: int) -> tuple[str, int|None]:
+    async def remove_user(self, user: User, chat_id: int) -> tuple[str, int | None]:
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
@@ -83,7 +88,6 @@ class QueueService(BaseService):
                 return "queue not found", None
             await self.uow.commit(True)
         return answer, notific_target
-            
 
     async def clear_queue(self, chat_id: int) -> str:
         async with self.uow:
