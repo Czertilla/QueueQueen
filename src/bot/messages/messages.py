@@ -80,9 +80,7 @@ class MessageTextBuilder:
         logging.debug(f"retrieving turn notification message")
         return await self.get_phrase("head_ntf")
 
-    async def on_queue_list(
-        self, queue_id: str | UUID | int, queue_list: SQueueList
-    ) -> str:
+    async def on_queue_list(self, queue_list: SQueueList) -> str:
         """
         Constructs the queue list message.
 
@@ -90,6 +88,7 @@ class MessageTextBuilder:
         :param queue_list: The queue list data.
         :return: The localized queue list message.
         """
+        queue_id = queue_list.id
         logger.debug(f"constructing queue list for queue_id={queue_id}.")
         if queue_list.id is None:
             msg_key = "new_queue_err" if queue_list.is_new else "no_queue"
