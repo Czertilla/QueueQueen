@@ -1,3 +1,4 @@
+from logging import getLogger
 from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.filters import CommandStart, Command
@@ -9,16 +10,24 @@ from ..messages.localization import i18n_manager
 
 router = Router()
 
+logger = getLogger(__name__)
+
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
     user = message.from_user
+    logger.info(f"handling /start cmd from {user.id=}")
     await UserService(uow := AllUOW()).check_user(user)
+    logger.debug(f"getting chat memger info by {user.id=}")
     member = await message.chat.get_member(user.id)
     message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
-        await message.answer(await QueueService(uow).get_queue_list(message.chat.id, True))
+        logger.debug(f"member {user.id=} got enough rights to start bot")
+        queue_list = await QueueService(uow).get_queue_list(
+            message.chat.id, True)
+        await message.answer(await message_builder.on_queue_list(queue_list))
     else:
+        logger.debug(f"member got not enouth rights to start bot")
         await message.answer(
             await message_builder.on_not_admin(message.from_user.username)
         )
