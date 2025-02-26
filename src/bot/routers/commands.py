@@ -3,6 +3,7 @@ from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.filters import CommandStart, Command
 from bot.messages.messages import MessageTextBuilder
+from schemas.users import SUser
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
@@ -36,8 +37,14 @@ async def start(message: Message) -> None:
 @router.message(Command("join"))
 async def join(message: Message) -> None:
     user = message.from_user
+    logger.info(f"handling /join cmd from {user.id=}")
     await UserService(uow := AllUOW()).check_user(user)
-    await message.answer(await QueueService(uow).add_user(user, message.chat.id))
+    response = await QueueService(uow).add_user(
+        SUser.model_validate(user), message.chat.id
+    )
+    await message.answer(
+        await MessageTextBuilder().on_user_queue_crud(response)
+    )
 
 
 @router.message(Command("quit"))
