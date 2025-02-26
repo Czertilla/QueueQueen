@@ -45,34 +45,48 @@ class QueueService(BaseService):
                         id=queue_id, positions=[], is_new=True
                     )
                 else:
-                    logger.warning(f"some problem during attemp to crete "+
+                    logger.warning(f"some problem during attemp to crete " +
                                    f"queue for {chat_id=}")
                     response = SQueueList(id=None, positions=None, is_new=True)
             else:
                 logger.debug("queue for {chat_id=} not exists, no creating")
                 response = SQueueList(id=None, positions=None, is_new=False)
             await self.uow.commit(True)
-        logger.info(f"from args {chat_id=}, {from_admin=} got {response=}")
+        logger.info(f"by args {chat_id=}, {from_admin=} got {response=}")
         return response
 
-    async def add_user(self, user: User, chat_id: int) -> SAddUserResponse:
+    async def add_user(self, user: SUser, chat_id: int) -> SAddUserResponse:
+        response: SAddUserResponse
+        logger.info(f"adding {user=} to queue in {chat_id=}")
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
+                logger.debug(f"{queue.id=} exists")
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
                 if isinstance(queue_data, QueueORM):
                     user_data = await self.uow.users.get_by_tgid(user.id)
                     if isinstance(user_data, UserORM):
-                        if (l := await self.uow.queues.add_position(queue_data, user_data.id)) == -1:
-                            return f"user @{user.username} already in queue"
+                        logger.debug(f"{user.id=} exists")
+                        if (l := await self.uow.queues.add_position(
+                            queue_data, user_data.id
+                        )) == -1:
+                            response = SAddUserResponse(
+                                queue_id=queue_data.id, user=user, position=-1)
                         else:
-                            answer = f"@{user.username}, now your position is {l}"
+                            response = SAddUserResponse(
+                                queue_id=queue.id, user=user, position=l
+                            )
                     else:
-                        return "user not found"
+                        response = SAddUserResponse(
+                            queue_id=queue_data.id, user=None, position=-1
+                        )
             else:
-                return "queue not found"
+                response = SAddUserResponse(
+                    queue_id=None, user=user, position=-1
+                )
             await self.uow.commit(True)
-        return answer
+        logger.info(f"by args {user=}, {chat_id=} got {response=}")
+        return response
 
     async def remove_user(self, user: User, chat_id: int) -> tuple[str, int | None]:
         async with self.uow:
