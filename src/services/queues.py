@@ -66,7 +66,7 @@ class QueueService(BaseService):
                 if isinstance(queue_data, QueueORM):
                     user_data = await self.uow.users.get_by_tgid(user.id)
                     if isinstance(user_data, UserORM):
-                        logger.debug(f"{user.id=} exists")
+                        logger.debug(f"{user.tgid=} exists")
                         if (l := await self.uow.queues.add_position(
                             queue_data, user_data.id
                         )) == -1:
