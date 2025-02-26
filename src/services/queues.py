@@ -22,11 +22,9 @@ class QueueService(BaseService):
         response: SQueueList
         logger.info(f"constructing queue list for {chat_id=}")
         async with self.uow:
-            logger.debug(f"getting queue data for {chat_id=}")
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 logger.debug(f"{queue.id=} exists")
-                logger.debug(f"loading positions data for {queue.id=}")
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
                 assert isinstance(queue_data, QueueORM)
                 logger.debug("sorting positions by timestamps")
