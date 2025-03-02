@@ -103,7 +103,9 @@ class MessageTextBuilder:
                     answer += f"\n {
                         p} - {pos.first_name} {pos.last_name} (@{pos.username})"
                 logger.debug(
-                    f"constructed queue list for {len(pos)} positions")
+                    f"constructed queue list for {len(queue_list.positions)}" +
+                    " positions"
+                )
             else:
                 logger.debug(
                     f"queue turned out empty during constructing list")
