@@ -9,7 +9,7 @@ class SQueueList(BaseModel):
     is_new: bool = False
 
     class Config:
-        from_atributes = True
+        from_attributes = True
 
 
 class SUserQueueCrudResponse(BaseModel):
@@ -17,7 +17,7 @@ class SUserQueueCrudResponse(BaseModel):
     user: SUser | None
 
     class Config:
-        from_atributes = True
+        from_attributes = True
 
 class SAddUserResponse(SUserQueueCrudResponse):
     position: int

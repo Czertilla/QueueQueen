@@ -1,7 +1,9 @@
 
+from uuid import UUID
 from pydantic import BaseModel
 
 class SUser(BaseModel):
+    id: UUID  
     username: str
     tgid: int
     is_bot: bool
@@ -10,6 +12,5 @@ class SUser(BaseModel):
     username: str | None = None
     language_code: str | None = None
     
-
     class Config:
-        from_atributes = True
+        from_attributes = True
