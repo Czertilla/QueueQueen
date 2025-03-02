@@ -11,17 +11,28 @@ from utils.abstract.repository import AbstractRepository
 
 
 class IdMixin:
-    """Mixin class to provide a UUID primary key for database models."""
+    """
+    Mixin class that provides a UUID primary key for database models.
+    """
 
     @declared_attr
     def id(cls) -> Mapped[UUID]:
-        """Defines the primary key field as a UUID."""
+        """
+        Defines the primary key field as a UUID.
+
+        Returns:
+            Mapped[UUID]: A mapped column with a UUID primary key.
+        """
         return mapped_column(primary_key=True, default=uuid4)
 
 
 class Base(DeclarativeBase, IdMixin):
-    """Abstract base class for SQLAlchemy models, including default type 
-    mappings."""
+    """
+    Abstract base class for SQLAlchemy models, including default type mappings.
+
+    Attributes:
+        type_annotation_map (dict): Maps Python types to SQLAlchemy types.
+    """
 
     __abstract__ = True
 
@@ -32,24 +43,34 @@ class Base(DeclarativeBase, IdMixin):
 
 
 class SQLAlchemyRepository(AbstractRepository):
-    """Asynchronous repository class for handling database operations using 
-    SQLAlchemy."""
+    """
+    Asynchronous repository for performing database operations using SQLAlchemy.
+
+    Attributes:
+        model (Base): The SQLAlchemy model class.
+        logger (Logger): Logger instance for logging SQL operations.
+    """
 
     model = Base
     logger: Logger
 
     def __new__(cls, *args: Any, **kwargs: Any) -> "SQLAlchemyRepository":
-        """Creates a new instance and initializes the logger if it is not 
-        already set."""
+        """
+        Creates a new repository instance and initializes the logger.
+
+        Returns:
+            SQLAlchemyRepository: A new repository instance.
+        """
         if not hasattr(cls, "logger"):
             cls.logger = getLogger(f"SQL.{cls.__name__}")
         return super().__new__(cls)
 
     def __init__(self, session: AsyncSession) -> None:
         """
-        Initializes the repository with an async database session.
+        Initializes the repository with an async SQLAlchemy session.
 
-        :param session: The SQLAlchemy async session instance.
+        Args:
+            session (AsyncSession): The SQLAlchemy async session instance.
         """
         super().__init__()
         self.session: AsyncSession = session
@@ -58,9 +79,13 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         Executes a given SQLAlchemy statement asynchronously.
 
-        :param stmt: The SQL statement to execute.
-        :param flush: Whether to flush the session after execution.
-        :return: The execution result.
+        Args:
+            stmt (Any): The SQL statement to execute.
+            flush (bool, optional): Whether to flush the session after 
+                execution. Defaults to False.
+
+        Returns:
+            Result: The execution result.
         """
         self.logger.debug(stmt)
         result: Result = await self.session.execute(statement=stmt)
@@ -69,25 +94,34 @@ class SQLAlchemyRepository(AbstractRepository):
         return result
 
     async def flush(self) -> None:
-        """Flushes the current database session."""
+        """
+        Flushes the current session, synchronizing it with the database.
+        """
         await self.session.flush()
 
     async def get(self, id: UUID) -> Base | None:
         """
-        Retrieves a model instance by its ID.
+        Retrieves a model instance by its primary key.
 
-        :param id: The UUID of the instance.
-        :return: The instance if found, else None.
+        Args:
+            id (UUID): The primary key of the instance.
+
+        Returns:
+            Base | None: The instance if found, otherwise None.
         """
         return await self.session.get(self.model, id)
 
     async def get_with_options(self, id: UUID, options: tuple) -> Base | None:
         """
-        Retrieves a model instance by its ID with additional query options.
+        Retrieves a model instance by its primary key with additional query 
+            options.
 
-        :param id: The UUID of the instance.
-        :param options: SQLAlchemy options to apply to the query.
-        :return: The instance if found, else None.
+        Args:
+            id (UUID): The primary key of the instance.
+            options (tuple): SQLAlchemy query options.
+
+        Returns:
+            Base | None: The instance if found, otherwise None.
         """
         stmt = select(self.model).where(self.model.id == id).options(*options)
         return (await self.execute(stmt)).unique().scalar_one_or_none()
@@ -96,8 +130,10 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         Merges an instance into the session.
 
-        :param data_orm: The ORM instance to merge.
-        :param flush: Whether to flush the session after merging.
+        Args:
+            data_orm (Base): The ORM instance to merge.
+            flush (bool, optional): Whether to flush the session after merging.
+                Defaults to False.
         """
         await self.session.merge(data_orm)
         if flush:
@@ -105,10 +141,13 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def add_one(self, data: dict[str, Any]) -> UUID:
         """
-        Inserts a new instance into the database and returns its ID.
+        Inserts a new instance into the database and returns its primary key.
 
-        :param data: The data dictionary for the new instance.
-        :return: The UUID of the created instance.
+        Args:
+            data (dict[str, Any]): The data dictionary for the new instance.
+
+        Returns:
+            UUID: The primary key of the created instance.
         """
         stmt = insert(self.model).values(**data).returning(self.model.id)
         return (await self.execute(stmt, flush=False)).scalar_one()
@@ -117,11 +156,14 @@ class SQLAlchemyRepository(AbstractRepository):
             self, data: dict[str, Any], options: tuple = ()
     ) -> Base:
         """
-        Inserts a new instance and returns the full instance.
+        Inserts a new instance and returns the full model instance.
 
-        :param data: The data dictionary for the new instance.
-        :param options: SQLAlchemy options to apply.
-        :return: The created instance.
+        Args:
+            data (dict[str, Any]): The data dictionary for the new instance.
+            options (tuple, optional): SQLAlchemy query options. Defaults to ().
+
+        Returns:
+            Base: The created instance.
         """
         stmt = insert(self.model).values(
             **data).returning(self.model).options(*options)
@@ -129,31 +171,40 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def update(self, data: dict[str, Any], id: UUID) -> Result:
         """
-        Updates an instance in the database.
+        Updates an existing instance in the database.
 
-        :param data: The data dictionary with updated values.
-        :param id: The UUID of the instance to update.
-        :return: The execution result.
+        Args:
+            data (dict[str, Any]): The updated data.
+            id (UUID): The primary key of the instance to update.
+
+        Returns:
+            Result: The execution result.
         """
         stmt = update(self.model).where(self.model.id == id).values(**data)
         return await self.execute(stmt)
 
     async def find_by_id(self, id: UUID) -> Base | None:
         """
-        Finds an instance by its ID.
+        Finds an instance by its primary key.
 
-        :param id: The UUID of the instance.
-        :return: The instance if found, else None.
+        Args:
+            id (UUID): The primary key of the instance.
+
+        Returns:
+            Base | None: The instance if found, otherwise None.
         """
         stmt = select(self.model).where(self.model.id == id)
         return (await self.execute(stmt)).scalar_one_or_none()
 
     async def find_all(self, **filters: Any) -> list[Base]:
         """
-        Finds all instances matching given filters.
+        Finds all instances that match the given filters.
 
-        :param filters: Key-value pairs to filter results.
-        :return: A list of matching instances.
+        Args:
+            **filters (Any): Key-value pairs used to filter results.
+
+        Returns:
+            list[Base]: A list of matching instances.
         """
         stmt = select(self.model).filter_by(**filters)
         result = await self.execute(stmt)
@@ -161,10 +212,13 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def check_existence(self, id: UUID) -> bool:
         """
-        Checks whether an instance with the given ID exists.
+        Checks if an instance with the given primary key exists.
 
-        :param id: The UUID of the instance.
-        :return: True if it exists, otherwise False.
+        Args:
+            id (UUID): The primary key of the instance.
+
+        Returns:
+            bool: True if the instance exists, otherwise False.
         """
         return (await self.find_by_id(id)) is not None
 
@@ -172,6 +226,7 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         Deletes an instance from the database.
 
-        :param id: The UUID of the instance to delete.
+        Args:
+            id (UUID): The primary key of the instance to delete.
         """
         await self.execute(delete(self.model).where(self.model.id == id))
