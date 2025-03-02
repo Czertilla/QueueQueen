@@ -47,7 +47,7 @@ class SQLAlchemyRepository(AbstractRepository):
     Asynchronous repository for performing database operations using SQLAlchemy.
 
     Attributes:
-        model (Base): The SQLAlchemy model class.
+        model (type[Base]): The SQLAlchemy model class.
         logger (Logger): Logger instance for logging SQL operations.
     """
 
@@ -99,7 +99,7 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         await self.session.flush()
 
-    async def get(self, id: UUID) -> Base | None:
+    async def get(self, id: UUID) -> model | None:
         """
         Retrieves a model instance by its primary key.
 
@@ -107,11 +107,11 @@ class SQLAlchemyRepository(AbstractRepository):
             id (UUID): The primary key of the instance.
 
         Returns:
-            Base | None: The instance if found, otherwise None.
+            model | None: The instance if found, otherwise None.
         """
         return await self.session.get(self.model, id)
 
-    async def get_with_options(self, id: UUID, options: tuple) -> Base | None:
+    async def get_with_options(self, id: UUID, options: tuple) -> model | None:
         """
         Retrieves a model instance by its primary key with additional query 
             options.
@@ -121,17 +121,17 @@ class SQLAlchemyRepository(AbstractRepository):
             options (tuple): SQLAlchemy query options.
 
         Returns:
-            Base | None: The instance if found, otherwise None.
+            model | None: The instance if found, otherwise None.
         """
         stmt = select(self.model).where(self.model.id == id).options(*options)
         return (await self.execute(stmt)).unique().scalar_one_or_none()
 
-    async def merge(self, data_orm: Base, flush: bool = False) -> None:
+    async def merge(self, data_orm: model, flush: bool = False) -> None:
         """
         Merges an instance into the session.
 
         Args:
-            data_orm (Base): The ORM instance to merge.
+            data_orm (model): The ORM instance to merge.
             flush (bool, optional): Whether to flush the session after merging.
                 Defaults to False.
         """
@@ -154,7 +154,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def add_n_return(
             self, data: dict[str, Any], options: tuple = ()
-    ) -> Base:
+    ) -> model:
         """
         Inserts a new instance and returns the full model instance.
 
@@ -163,7 +163,7 @@ class SQLAlchemyRepository(AbstractRepository):
             options (tuple, optional): SQLAlchemy query options. Defaults to ().
 
         Returns:
-            Base: The created instance.
+            model: The created instance.
         """
         stmt = insert(self.model).values(
             **data).returning(self.model).options(*options)
@@ -183,7 +183,7 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = update(self.model).where(self.model.id == id).values(**data)
         return await self.execute(stmt)
 
-    async def find_by_id(self, id: UUID) -> Base | None:
+    async def find_by_id(self, id: UUID) -> model | None:
         """
         Finds an instance by its primary key.
 
@@ -191,12 +191,12 @@ class SQLAlchemyRepository(AbstractRepository):
             id (UUID): The primary key of the instance.
 
         Returns:
-            Base | None: The instance if found, otherwise None.
+            model | None: The instance if found, otherwise None.
         """
         stmt = select(self.model).where(self.model.id == id)
         return (await self.execute(stmt)).scalar_one_or_none()
 
-    async def find_all(self, **filters: Any) -> list[Base]:
+    async def find_all(self, **filters: Any) -> list[model]:
         """
         Finds all instances that match the given filters.
 
@@ -204,7 +204,7 @@ class SQLAlchemyRepository(AbstractRepository):
             **filters (Any): Key-value pairs used to filter results.
 
         Returns:
-            list[Base]: A list of matching instances.
+            list[model]: A list of matching instances.
         """
         stmt = select(self.model).filter_by(**filters)
         result = await self.execute(stmt)
