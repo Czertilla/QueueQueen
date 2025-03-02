@@ -13,21 +13,24 @@ class UserService(BaseService):
             self.uow.users.check_username(value)
 
     
-    async def check_user(self, user: User) -> None:
+    async def update_user(self, user: User) -> SUser:
+        logger.debug(f"updating data for {user=}")
         async with self.uow:
-            user_data: dict = user.model_dump(mode="python")
+            user_data: dict = user.model_dump()
             user_data.update({
                     "tgid": user_data.pop("id")
                 })
-            user_data: dict = SUser(**user_data).model_dump(mode="python")
-            user_model: UserORM = await self.uow.users.get_by_tgid(user.id)
+            user_model = await self.uow.users.get_by_tgid(user.id)
             if isinstance(user_model, UserORM):
-                user_data.update({
-                    "id": user_model.id
-                })
-                id: UUID = user_data.pop('id')
-                user_data.pop('tgid')
-                await self.uow.users.update(user_data, id)
+                logger.debug(f"data for {user=} already exists")
+                user_data.update({"id": user_model.id})
+                logger.debug(f"filtering unnecessary attributes for {user=}")
+                user_data = SUser(**user_data).model_dump()
+                await self.uow.users.update(user_data, user_model.id)
             else:
-                await self.uow.users.add_one(user_data)
+                logger.debug(f"data for {user=} not exists yet")
+                user_model = await self.uow.users.add_n_return(user_data)
+            response = SUser.model_validate(user_model)
             await self.uow.commit(True)
+        logger.debug(f"after update {user=} got {response=}")
+        return response
