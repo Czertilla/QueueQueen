@@ -14,6 +14,7 @@ class UserService(BaseService):
 
     
     async def update_user(self, user: User) -> SUser:
+        response: SUser
         logger.debug(f"updating data for {user=}")
         async with self.uow:
             user_data: dict = user.model_dump()
