@@ -77,7 +77,7 @@ class MessageTextBuilder:
 
         :return: The localized string with the message.
         """
-        logging.debug(f"retrieving turn notification message")
+        logger.debug("Retrieving turn notification message")
         return await self.get_phrase("head_ntf")
 
     async def on_queue_list(self, queue_list: SQueueList) -> str:
