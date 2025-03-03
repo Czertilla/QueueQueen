@@ -12,29 +12,42 @@ logger = getLogger(__name__)
 
 
 class QueueService(BaseService):
-    async def check_username(self, value: str) -> bool:
-        async with self.uow:
-            self.uow.users.check_username(value)
+    """
+    Service class for managing queue-related operations.
+
+    Provides methods for retrieving queue lists, adding users to queues,
+    removing users from queues, and clearing queues.
+    """
 
     async def get_queue_list(
             self, chat_id: int, from_admin: bool = False
     ) -> SQueueList:
+        """
+        Retrieves the queue list for a given chat.
+
+        Args:
+            chat_id: The ID of the chat.
+            from_admin: Whether the request is from an admin.
+
+        Returns:
+            SQueueList: The queue list.
+        """
         response: SQueueList
         logger.info(f"constructing queue list for {chat_id=}")
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 logger.debug(f"{queue.id=} exists")
-                queue_data = await self.uow.queues.get_with_positions(queue.id)
+                queue_data: QueueORM = (
+                    await self.uow.queues.get_with_positions(queue.id))
                 assert isinstance(queue_data, QueueORM)
                 logger.debug("sorting positions by timestamps")
-                positions = [SUser.model_validate(pos.user) for pos in sorted(
-                    queue_data.positions, key=lambda pos: pos.created_at
-                )]
+                positions: list[SUser] = [
+                    SUser.model_validate(pos.user) for pos in sorted(
+                        queue_data.positions, key=lambda pos: pos.created_at
+                    )]
                 logger.debug(f"{len(positions)} positions retrieved ad sorted")
-                response = SQueueList(
-                    id=queue_data.id, positions=positions
-                )
+                response = SQueueList(id=queue_data.id, positions=positions)
             elif from_admin:
                 logger.debug(
                     f"queue for {chat_id=} not exists, creating by admin")
@@ -42,11 +55,11 @@ class QueueService(BaseService):
                 if isinstance(queue_id, UUID):
                     logger.info(f"new {queue_id=} created for {chat_id=}")
                     response = SQueueList(
-                        id=queue_id, positions=[], is_new=True
-                    )
+                        id=queue_id, positions=[], is_new=True)
                 else:
-                    logger.warning(f"some problem during attemp to crete " +
-                                   f"queue for {chat_id=}")
+                    logger.warning(
+                        "some problem during attemp to crete queue for " +
+                        f"{chat_id=}")
                     response = SQueueList(id=None, positions=None, is_new=True)
             else:
                 logger.debug("queue for {chat_id=} not exists, no creating")
@@ -56,6 +69,17 @@ class QueueService(BaseService):
         return response
 
     async def add_user(self, user: SUser, chat_id: int) -> SAddUserResponse:
+        """
+        Adds a user to the queue.
+
+        Args:
+            user: The user to add.
+            chat_id: The ID of the chat.
+
+        Returns:
+            SAddUserResponse: The response indicating the result of the 
+                operation.
+        """
         response: SAddUserResponse
         logger.info(f"adding {user=} to queue in {chat_id=}")
         async with self.uow:
@@ -66,23 +90,21 @@ class QueueService(BaseService):
                 if isinstance(queue_data, QueueORM):
                     if await self.uow.users.check_existence(user.id):
                         logger.debug(f"{user.tgid=} exists")
-                        if (l := await self.uow.queues.add_position(
+                        position: int = await self.uow.queues.add_position(
                             queue_data, user.id
-                        )) == -1:
+                        )
+                        if position == -1:
                             response = SAddUserResponse(
                                 queue_id=queue_data.id, user=user, position=-1)
                         else:
                             response = SAddUserResponse(
-                                queue_id=queue.id, user=user, position=l
-                            )
+                                queue_id=queue.id, user=user, position=position)
                     else:
                         response = SAddUserResponse(
-                            queue_id=queue_data.id, user=None, position=-1
-                        )
+                            queue_id=queue_data.id, user=None, position=-1)
             else:
                 response = SAddUserResponse(
-                    queue_id=None, user=user, position=-1
-                )
+                    queue_id=None, user=user, position=-1)
             await self.uow.commit(True)
         logger.info(f"by args {user=}, {chat_id=} got {response=}")
         return response
@@ -90,6 +112,17 @@ class QueueService(BaseService):
     async def remove_user(
             self, user: SUser, chat_id: int
     ) -> SRemoveUserResponse:
+        """
+        Removes a user from the queue.
+
+        Args:
+            user: The user to remove.
+            chat_id: The ID of the chat.
+
+        Returns:
+            SRemoveUserResponse: The response indicating the result of the 
+                operation.
+        """
         response: SRemoveUserResponse
         logger.info(f"removing {user.id=} from queue in {chat_id=}")
         async with self.uow:
@@ -97,7 +130,6 @@ class QueueService(BaseService):
             if isinstance(queue, QueueORM):
                 queue_data = await self.uow.queues.get_with_positions(queue.id)
                 if isinstance(queue_data, QueueORM):
-                    l = len(queue_data.positions)
                     if await self.uow.users.check_existence(user.id):
                         result = await self.uow.queues.remove_position(
                             queue, user.id
@@ -106,10 +138,7 @@ class QueueService(BaseService):
                             logger.debug(
                                 f"{user.id=} already not in {queue.id=}")
                             response = SRemoveUserResponse(
-                                queue_id=queue.id,
-                                user=user,
-                                is_already=True
-                            )
+                                queue_id=queue.id, user=user, is_already=True)
                         else:
                             logger.debug(f"{user.id=} removed from {queue.id}")
                             response = SRemoveUserResponse(
@@ -120,24 +149,33 @@ class QueueService(BaseService):
                     else:
                         logger.error(f"{user.id=} not found in database")
                         response = SRemoveUserResponse(
-                            queue_id=queue.id,
-                            user=None
-                        )
+                            queue_id=queue.id, user=None)
             else:
-                logger.warning(f"atempt quit non-existance queue in {chat_id=}")
+                logger.warning(
+                    f"atempt quit non-existance queue in {chat_id=}")
                 response = SRemoveUserResponse(queue_id=None, user=user)
             await self.uow.commit(True)
         logger.info(f"got {response=} for args=( {user=}, {chat_id=} )")
         return response
 
-    async def clear_queue(self, chat_id: int) -> UUID:
+    async def clear_queue(self, chat_id: int) -> UUID | None:
+        """
+        Clears the queue for a given chat.
+
+        Args:
+            chat_id: The ID of the chat.
+
+        Returns:
+            Optional[UUID]: The ID of the cleared queue, or None if the queue 
+                does not exist.
+        """
         logger.info(f"clearing queue in {chat_id=}")
         async with self.uow:
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 logger.debug(f"{queue.id=} exists in {chat_id=}")
                 await self.uow.queues.clear(queue.id)
-                answer = queue.id
+                answer: UUID = queue.id
             else:
                 logger.warning(
                     f"atempt clear non-existance queue in {chat_id=}")

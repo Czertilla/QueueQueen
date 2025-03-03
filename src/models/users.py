@@ -1,18 +1,24 @@
-from typing import TYPE_CHECKING
-from uuid import UUID
-
-from sqlalchemy import ForeignKey
 from database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import List, Optional
 
-from database.sqlalchemy.base import IdMixin
 from models.positions import PositionORM
-
-if TYPE_CHECKING:
-    from models import QueueORM
 
 
 class UserORM(Base):
+    """
+    SQLAlchemy model representing a user.
+
+    Attributes:
+        username (str | None): The username of the user, can be None.
+        tgid (int): The Telegram ID of the user, primary key.
+        first_name (str | None): The first name of the user, can be None.
+        last_name (str | None): The last name of the user, can be None.
+        language_code (str | None): The language code of the user, can be None.
+        is_bot (bool): Indicates if the user is a bot.
+        positions (list[PositionORM]): A list of positions associated with the user.
+    """
+
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(nullable=True)
@@ -25,5 +31,3 @@ class UserORM(Base):
     positions: Mapped[list[PositionORM]] = relationship(
         back_populates="user"
     )
-
-

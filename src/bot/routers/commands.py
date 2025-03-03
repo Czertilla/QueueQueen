@@ -3,7 +3,6 @@ from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.filters import CommandStart, Command
 from bot.messages.messages import MessageTextBuilder
-from schemas.users import SUser
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
@@ -16,6 +15,15 @@ logger = getLogger(__name__)
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
+    """
+    Handles the /start command.
+
+    Updates user information, checks if the user is an admin, and sends a response
+    based on the user's permissions.
+
+    Args:
+        message (Message): The incoming Message object.
+    """
     user = message.from_user
     logger.info(f"handling /start cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
@@ -36,6 +44,14 @@ async def start(message: Message) -> None:
 
 @router.message(Command("join"))
 async def join(message: Message) -> None:
+    """
+    Handles the /join command.
+
+    Adds the user to the queue and sends a response with the result.
+
+    Args:
+        message (Message): The incoming Message object.
+    """
     user = message.from_user
     logger.info(f"handling /join cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
@@ -49,6 +65,15 @@ async def join(message: Message) -> None:
 
 @router.message(Command("quit"))
 async def quit(message: Message, bot: Bot) -> None:
+    """
+    Handles the /quit command.
+
+    Removes the user from the queue, notifies the next user in line, and sends a response.
+
+    Args:
+        message (Message): The incoming Message object.
+        bot (Bot): The Bot instance.
+    """
     user = message.from_user
     logger.info(f"handling /quit cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
@@ -64,12 +89,28 @@ async def quit(message: Message, bot: Bot) -> None:
 
 @router.message(Command("check"))
 async def check(message: Message) -> None:
+    """
+    Handles the /check command.
+
+    Retrieves and sends the current queue list.
+
+    Args:
+        message (Message): The incoming Message object.
+    """
     response = await QueueService(AllUOW()).get_queue_list(message.chat.id)
     await message.answer(await MessageTextBuilder().on_queue_list(response))
 
 
 @router.message(Command("clear"))
 async def clear(message: Message) -> None:
+    """
+    Handles the /clear command.
+
+    Checks if the user is an admin and clears the queue if they are.
+
+    Args:
+        message (Message): The incoming Message object.
+    """
     user = message.from_user
     await UserService(uow := AllUOW()).update_user(user)
     member = await message.chat.get_member(user.id)

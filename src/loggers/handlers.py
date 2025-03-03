@@ -4,13 +4,14 @@ import shutil
 import glob
 from logging.handlers import TimedRotatingFileHandler
 
+
 class GzipTimedRotatingFileHandler(TimedRotatingFileHandler):
-    """Ротирующий логгер с автоматическим сжатием gzip."""
-    
+    """Timed rotating file handler with automatic gzip compression."""
+
     def doRollover(self):
-        """Сжатие после ротации."""
+        """Compresses the rotated log file using gzip."""
         super().doRollover()
-        
+
         for old_log in glob.glob(self.baseFilename + ".*"):
             if not old_log.endswith(".gz"):
                 with open(old_log, "rb") as f_in:

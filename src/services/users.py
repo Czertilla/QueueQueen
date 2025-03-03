@@ -7,20 +7,42 @@ from aiogram.types.user import User
 
 logger = getLogger(__name__)
 
-class UserService(BaseService):
-    async def check_username(self, value: str) -> bool:
-        async with self.uow:
-            self.uow.users.check_username(value)
 
-    
+class UserService(BaseService):
+    """
+    Service class for managing user-related operations.
+
+    Provides methods for checking usernames and updating user information.
+    """
+
+    async def check_username(self, value: str) -> bool:
+        """
+        Checks if a username exists.
+
+        Args:
+            value: The username to check.
+
+        Returns:
+            bool: True if the username exists, False otherwise.
+        """
+        async with self.uow:
+            return await self.uow.users.check_username(value)
+
     async def update_user(self, user: User) -> SUser:
+        """
+        Updates or creates a user based on the provided aiogram User object.
+
+        Args:
+            user: The aiogram User object.
+
+        Returns:
+            SUser: The updated or created user as an SUser schema.
+        """
         response: SUser
         logger.debug(f"updating data for {user=}")
         async with self.uow:
             user_data: dict = user.model_dump()
-            user_data.update({
-                    "tgid": user_data.pop("id")
-                })
+            user_data.update({"tgid": user_data.pop("id")})
             user_model = await self.uow.users.get_by_tgid(user.id)
             if isinstance(user_model, UserORM):
                 logger.debug(f"data for {user=} already exists")

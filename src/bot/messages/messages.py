@@ -20,7 +20,9 @@ class MessageTextBuilder:
     appropriate markup formatting.
     """
 
-    def __init__(self, lang: str | None = None, markup: str = DEFAULT_MARKUP) -> None:
+    def __init__(
+            self, lang: str | None = None, markup: str = DEFAULT_MARKUP
+    ) -> None:
         """
         Initializes a MessageTextBuilder instance.
 
@@ -100,7 +102,7 @@ class MessageTextBuilder:
             for p, pos in enumerate(queue_list.positions):
                 answer += f"\n {p} - {pos.first_name} {pos.last_name} (@{pos.username})"
             logger.debug(
-                f"constructed queue list with {len(queue_list.positions)}"+
+                f"constructed queue list with {len(queue_list.positions)}" +
                 " positions")
         else:
             logger.debug("queue is empty")
