@@ -9,7 +9,7 @@ from schemas.queues import (
 from utils.settings import getSettings
 from .localization import i18n_manager
 
-DEFAULT_MARKUP: str = getSettings().BOT_PARSE_MODE
+DEFAULT_MARKUP: str = getSettings().BOT_PARSE_MODE.value
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

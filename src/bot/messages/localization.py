@@ -52,7 +52,7 @@ class Localization:
         return f"<Localization(default_lang={self.default_lang}, ttl={self.ttl})>"
 
     async def get(
-            self, key: str, lang: Optional[str] = None,
+            self, key: str, lang: str | None = None,
             markup: str = "HTML", **kwargs: Any
     ) -> str:
         """
@@ -73,7 +73,7 @@ class Localization:
         cache_key = f"i18n:{lang}:{key}"
 
         # Check cache
-        cached_translation: Optional[str] = await self.cache.get(cache_key)
+        cached_translation: str | None = await self.cache.get(cache_key)
         if cached_translation:
             logger.debug(f"Cache hit: {cache_key}")
             return cached_translation

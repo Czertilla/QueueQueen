@@ -1,0 +1,8 @@
+loader:
+  type: python
+  search_path: ["."]
+  
+renderer:
+  type: markdown
+  output_directory: docs
+  render_to_disk: true

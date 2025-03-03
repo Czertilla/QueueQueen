@@ -21,12 +21,12 @@ class TimestampMixin:
         return mapped_column(default=func.now())
 
     @declared_attr
-    def edited_at(cls) -> datetime | None:
+    def edited_at(cls) -> Mapped[datetime | None]:
         """
         Column representing the last modification timestamp.
 
         Returns:
-            Mapped[Optional[datetime]]: A SQLAlchemy mapped column representing the modification timestamp,
+            Mapped[datetime | None]: A SQLAlchemy mapped column representing the modification timestamp,
                                        or None if the record has not been modified.
         """
         return mapped_column(onupdate=func.now())
