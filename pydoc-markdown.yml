@@ -1,7 +1,6 @@
 loader:
   type: python
   search_path: ["."]
-  
 renderer:
   type: markdown
   output_directory: docs
