@@ -24,4 +24,5 @@ class SAddUserResponse(SUserQueueCrudResponse):
 
 
 class SRemoveUserResponse(SUserQueueCrudResponse):
-    is_already: bool
+    is_already: bool = False
+    notificate_target: int | None = None

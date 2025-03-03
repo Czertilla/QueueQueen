@@ -18,7 +18,7 @@ logger = getLogger(__name__)
 async def start(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /start cmd from {user.id=}")
-    await UserService(uow := AllUOW()).check_user(user)
+    user_schema = await UserService(uow := AllUOW()).update_user(user)
     logger.debug(f"getting chat memger info by {user.id=}")
     member = await message.chat.get_member(user.id)
     message_builder = MessageTextBuilder()
@@ -30,7 +30,7 @@ async def start(message: Message) -> None:
     else:
         logger.debug(f"member got not enouth rights to start bot")
         await message.answer(
-            await message_builder.on_not_admin(message.from_user.username)
+            await message_builder.on_not_admin(user_schema.username)
         )
 
 
@@ -38,9 +38,9 @@ async def start(message: Message) -> None:
 async def join(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /join cmd from {user.id=}")
-    await UserService(uow := AllUOW()).check_user(user)
+    user_schema = await UserService(uow := AllUOW()).update_user(user)
     response = await QueueService(uow).add_user(
-        SUser.model_validate(user), message.chat.id
+        user_schema, message.chat.id
     )
     await message.answer(
         await MessageTextBuilder().on_user_queue_crud(response)
@@ -50,32 +50,33 @@ async def join(message: Message) -> None:
 @router.message(Command("quit"))
 async def quit(message: Message, bot: Bot) -> None:
     user = message.from_user
+    logger.info(f"handling /quit cmd from {user.id=}")
+    user_schema = await UserService(uow := AllUOW()).update_user(user)
     message_builder = MessageTextBuilder()
-    result = await QueueService(AllUOW()).remove_user(user, message.chat.id)
-    if result[1] is not None:
+    response = await QueueService(uow).remove_user(user_schema, message.chat.id)
+    if response.notificate_target is not None:
         await bot.send_message(
-            chat_id=result[1],
-            # text=f"it`s your turn now. Don`t forget quit queue or just push this button",
+            chat_id=response.notificate_target,
             text=await message_builder.on_your_turn_ntf()
         )
-    await message.answer(result[0])
+    await message.answer(await message_builder.on_remove_user(response))
 
 
 @router.message(Command("check"))
 async def check(message: Message) -> None:
-    user = message.from_user
-    await UserService(uow := AllUOW()).check_user(user)
-    await message.answer(await QueueService(uow).get_queue_list(message.chat.id))
+    response = await QueueService(AllUOW()).get_queue_list(message.chat.id)
+    await message.answer(await MessageTextBuilder().on_queue_list(response))
 
 
 @router.message(Command("clear"))
 async def clear(message: Message) -> None:
     user = message.from_user
-    await UserService(uow := AllUOW()).check_user(user)
+    await UserService(uow := AllUOW()).update_user(user)
     member = await message.chat.get_member(user.id)
     message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
-        await message.answer(await QueueService(uow).clear_queue(message.chat.id))
+        response = await QueueService(uow).clear_queue(message.chat.id)
+        await message.answer(message_builder.on_clear_queue(response))
     else:
         await message.answer(
             await message_builder.on_not_admin(message.from_user.username)
