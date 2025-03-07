@@ -1,11 +1,14 @@
 from functools import lru_cache
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from os import environ
 from dotenv import load_dotenv
 
-from utils.enums.settings import BotParserType, DBManagerType
+from utils.enums.settings import DBManagerType
+from aiogram.enums import ParseMode
 
 load_dotenv()
+
 
 class Settings(BaseSettings):
     """
@@ -18,24 +21,23 @@ class Settings(BaseSettings):
     APP_NAME: str = "FASAPI APP"
     """Name of the FastAPI application that will be displayed in places such as Swagger."""
 
-    DB_DBMS: DBManagerType
+    DB_DBMS: DBManagerType = DBManagerType.__default__
     """Type of database management system used (e.g., sqlite, postgres)."""
 
     DB_NAME: str
     """Name of the database used."""
 
-    if DB_DBMS == DBManagerType.postgres:
-        DB_USER: str
-        """Username for connecting to the database."""
-        
-        DB_PASS: str
-        """Password for the database user."""
+    DB_USER: str | None = None
+    """Username for connecting to the database (required for PostgreSQL)."""
 
-        DB_HOST: str
-        """Hostname or IP address of the database server."""
+    DB_PASS: str | None = None
+    """Password for the database user (required for PostgreSQL)."""
 
-        DB_PORT: str
-        """Port number on which the database server is running."""
+    DB_HOST: str | None = None
+    """Hostname or IP address of the database server (required for PostgreSQL)."""
+
+    DB_PORT: str | None = None
+    """Port number on which the database server is running (required for PostgreSQL)."""
 
     TTL_SECONDS: int = 300
     """Time-to-live (TTL) for cache storage, in seconds."""
@@ -49,11 +51,24 @@ class Settings(BaseSettings):
     BOT_TG_WEBHOOK: str
     """The HTTPS address of your application (WITHOUT THE REQUEST PATH) that Telegram will use for the webhook."""
 
-    BOT_PARSE_MODE: BotParserType
+    BOT_PARSE_MODE: ParseMode = ParseMode.HTML
     """The message parsing mode for the Telegram bot (e.g., Markdown, HTML)."""
 
     model_config = SettingsConfigDict(env_file=environ, extra="ignore")
     """Configuration for Pydantic settings, defining how environment variables are loaded."""
+
+    @field_validator("DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", mode="before")
+    @classmethod
+    def check_postgres_fields(cls, value: str | None, info: ValidationInfo):
+        """
+        Ensures that PostgreSQL-related fields are set when DB_DBMS is 'postgres'.
+
+        Raises:
+            ValueError: If a required PostgreSQL field is missing.
+        """
+        if info.data.get("DB_DBMS") == DBManagerType.postgres and not value:
+            raise ValueError(f"{info.field_name} is required when DB_DBMS is set to 'postgres'")
+        return value
 
 
 @lru_cache
