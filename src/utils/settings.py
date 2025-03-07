@@ -2,7 +2,8 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from os import environ
 from dotenv import load_dotenv
-from aiogram.enums import ParseMode
+
+from utils.enums.settings import BotParserType, DBManagerType
 
 load_dotenv()
 
@@ -16,7 +17,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "FASAPI APP"
     """Name of the FastAPI application that will be displayed in places such as Swagger."""
 
-    DB_DBMS: str = "sqlite"
+    DB_DBMS: DBManagerType
     """Type of database management system used (e.g., sqlite, postgres)."""
     DB_NAME: str
     """Name of database used."""
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
     For more information, visit https://core.telegram.org/bots."""
     BOT_TG_WEBHOOK: str
     """The HTTPS address of your application (WITHOUT THE REQUEST PATH) that Telegram for webhook will use."""
-    BOT_PARSE_MODE: ParseMode = ParseMode.HTML
+    BOT_PARSE_MODE: BotParserType
 
     model_config = SettingsConfigDict(env_file=environ, extra="ignore")
 

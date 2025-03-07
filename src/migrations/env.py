@@ -15,8 +15,13 @@ from models import Base
 config = context.config
 section = config.config_ini_section
 settings = Settings()
+if settings.DB_DBMS == "sqlite":
+    sqlalchemy_url = f"sqlite+aiosqlite:///{settings.DB_NAME}.db"
+elif settings.DB_DBMS == "postgres":
+    sqlalchemy_url = f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+config.set_main_option("sqlalchemy.url", sqlalchemy_url)
 # config.set_section_option(section, "DB_HOST", settings.DB_HOST)
-config.set_section_option(section, "DB_NAME", settings.DB_NAME)
+# config.set_section_option(section, "DB_NAME", settings.DB_NAME)
 # config.set_section_option(section, "DB_PASS", settings.DB_PASS)
 # config.set_section_option(section, "DB_PORT", settings.DB_PORT)
 # config.set_section_option(section, "DB_USER", settings.DB_USER)
