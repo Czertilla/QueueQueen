@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     BOT_TG_WEBHOOK: str
     """The HTTPS address of your application (WITHOUT THE REQUEST PATH) that Telegram for webhook will use."""
     BOT_PARSE_MODE: ParseMode = ParseMode.HTML
+    """"""
 
     model_config = SettingsConfigDict(env_file=environ, extra="ignore")
 
