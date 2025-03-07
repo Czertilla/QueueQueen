@@ -26,8 +26,9 @@ class QueueService(BaseService):
         Retrieves the queue list for a given chat.
 
         Args:
-            chat_id: The ID of the chat.
-            from_admin: Whether the request is from an admin.
+            chat_id (int): The ID of the chat.
+            from_admin (bool): Whether the request is from an admin.
+                Defaults to `False`
 
         Returns:
             SQueueList: The queue list.
@@ -73,8 +74,8 @@ class QueueService(BaseService):
         Adds a user to the queue.
 
         Args:
-            user: The user to add.
-            chat_id: The ID of the chat.
+            user (SUser): The user to add.
+            chat_id (int): The ID of the chat.
 
         Returns:
             SAddUserResponse: The response indicating the result of the 
@@ -116,8 +117,8 @@ class QueueService(BaseService):
         Removes a user from the queue.
 
         Args:
-            user: The user to remove.
-            chat_id: The ID of the chat.
+            user (SUser): The user to remove.
+            chat_id (int): The ID of the chat.
 
         Returns:
             SRemoveUserResponse: The response indicating the result of the 
@@ -163,7 +164,7 @@ class QueueService(BaseService):
         Clears the queue for a given chat.
 
         Args:
-            chat_id: The ID of the chat.
+            chat_id (int): The ID of the chat.
 
         Returns:
             Optional[UUID]: The ID of the cleared queue, or None if the queue 
