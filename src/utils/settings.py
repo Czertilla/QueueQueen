@@ -59,7 +59,9 @@ class Settings(BaseSettings):
 
     @field_validator("DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", mode="before")
     @classmethod
-    def check_postgres_fields(cls, value: str | None, info: ValidationInfo):
+    def check_postgres_fields(
+        cls, value: str | None, info: ValidationInfo
+    ) -> str | None:
         """
         Ensures that PostgreSQL-related fields are set when DB_DBMS is 'postgres'.
 
@@ -67,7 +69,8 @@ class Settings(BaseSettings):
             ValueError: If a required PostgreSQL field is missing.
         """
         if info.data.get("DB_DBMS") == DBManagerType.postgres and not value:
-            raise ValueError(f"{info.field_name} is required when DB_DBMS is set to 'postgres'")
+            raise ValueError(
+                f"{info.field_name} is required when DB_DBMS is set to 'postgres'")
         return value
 
 
