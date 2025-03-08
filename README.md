@@ -22,6 +22,8 @@ QueueQueen is a Telegram bot for managing queues efficiently. Built with **Aiogr
 
 ## Installation
 
+To set up the project, follow the instructions in the [Installation Guide](docs/Installation.md).
+
 ### Prerequisites
 
 - Python 3.12+
@@ -50,7 +52,7 @@ QueueQueen is a Telegram bot for managing queues efficiently. Built with **Aiogr
    ```
 4. **Configure environment variables**
 
-   - Create a `.env` file in the project root. You can check [.env-exmpl](Dockerfile)
+   - Create a `.env` file in the project root. You can check [.env-exmpl](.env-exmpl)
 
    ```
    APP_NAME = 
@@ -106,6 +108,17 @@ Invite the bot to a group and use the following commands:
 | `/check` | Show list of position in queue             |
 | `/clear` | Admin-only: Clear the queue                |
 
+## Documentation
+
+For full documentation, refer to the [Wiki](docs/Home.md).
+
+Key sections:
+
+- [Getting Started](docs/Installation.md)
+- [Architecture](docs/Architecture.md)
+- [Modules](docs/Modules.md)
+- [Contribution Guide](docs/CONTRIBUTING.md)
+
 ## Deployment
 
 For production, deploy using **Docker** and set up a webhook with **FastAPI**:
@@ -129,7 +142,8 @@ For production, deploy using **Docker** and set up a webhook with **FastAPI**:
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please read our [CONTRIBUTING](docs/CONTRIBUTING.md) guide for more details.
+For quck start, please follow these steps:
 
 1. Fork the repository
 2. Create a new branch (`git checkout -b feature-branch`)
@@ -144,3 +158,4 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ---
 
 Developed with ❤️ by [Czertilla](https://github.com/Czertilla)
+
