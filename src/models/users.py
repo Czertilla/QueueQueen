@@ -28,6 +28,4 @@ class UserORM(Base):
     language_code: Mapped[str] = mapped_column(nullable=True)
     is_bot: Mapped[bool] = mapped_column()
 
-    positions: Mapped[list[PositionORM]] = relationship(
-        back_populates="user"
-    )
+    positions: Mapped[list[PositionORM]] = relationship(back_populates="user")

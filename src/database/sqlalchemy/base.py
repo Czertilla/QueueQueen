@@ -81,7 +81,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
         Args:
             stmt (Any): The SQL statement to execute.
-            flush (bool, optional): Whether to flush the session after 
+            flush (bool, optional): Whether to flush the session after
                 execution. Defaults to False.
 
         Returns:
@@ -113,7 +113,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def get_with_options(self, id: UUID, options: tuple) -> model | None:
         """
-        Retrieves a model instance by its primary key with additional query 
+        Retrieves a model instance by its primary key with additional query
             options.
 
         Args:

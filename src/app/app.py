@@ -5,7 +5,7 @@ from api.routers import include_routers
 """
 This module initializes and configures the FastAPI application.
 
-It creates an instance of FastAPI, applies settings from the 
+It creates an instance of FastAPI, applies settings from the
 `app.Settings` class, and includes routers from the `api.routers` module.
 
 The resulting `app` object is the main FastAPI application instance.

@@ -1,6 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel
 
+
 class SUser(BaseModel):
     """
     Schema for representing user information.
@@ -15,6 +16,7 @@ class SUser(BaseModel):
         username (str | None): The username of the user, if available.
         language_code (str | None): The language code of the user, if available.
     """
+
     id: UUID
     username: str
     tgid: int

@@ -25,8 +25,7 @@ class QueueRepo(BaseRepo):
         """
         self.logger.debug(f"Fetching queue by chat_id={chat_id}")
         result = await self.execute(
-            select(self.model)
-            .where(self.model.chat_id == chat_id)
+            select(self.model).where(self.model.chat_id == chat_id)
         )
         queue = result.scalar_one_or_none()
         self.logger.debug(f"Queue found: {queue}")
@@ -46,17 +45,13 @@ class QueueRepo(BaseRepo):
         result = await self.execute(
             select(self.model)
             .where(self.model.id == id)
-            .options(
-                selectinload(self.model.positions).joinedload(PositionORM.user)
-            )
+            .options(selectinload(self.model.positions).joinedload(PositionORM.user))
         )
         queue = result.scalar_one_or_none()
         self.logger.debug(f"Queue with positions: {queue}")
         return queue
 
-    async def get_position(
-            self, queue_id: UUID, user_id: UUID
-    ) -> PositionORM | None:
+    async def get_position(self, queue_id: UUID, user_id: UUID) -> PositionORM | None:
         """
         Retrieves a position in a queue for a specific user.
 
@@ -96,8 +91,9 @@ class QueueRepo(BaseRepo):
             return -1
 
         new_position = len(queue.positions)
-        queue.positions.append(PositionORM(
-            queue_id=queue.id, user_id=user_id, position=new_position))
+        queue.positions.append(
+            PositionORM(queue_id=queue.id, user_id=user_id, position=new_position)
+        )
 
         self.logger.debug(
             f"User {user_id} added to queue {queue.id} at {new_position=}"
@@ -105,7 +101,7 @@ class QueueRepo(BaseRepo):
         return new_position
 
     async def remove_position(
-            self, queue: model, user_id: UUID
+        self, queue: model, user_id: UUID
     ) -> tuple[bool, int | None]:
         """
         Removes a user's position from the queue.
@@ -160,7 +156,5 @@ class QueueRepo(BaseRepo):
             queue_id: The UUID of the queue to be cleared.
         """
         self.logger.debug(f"Clearing queue with queue_id={queue_id}")
-        await self.execute(
-            delete(PositionORM).where(PositionORM.queue_id == queue_id)
-        )
+        await self.execute(delete(PositionORM).where(PositionORM.queue_id == queue_id))
         self.logger.debug(f"Queue {queue_id} has been cleared")

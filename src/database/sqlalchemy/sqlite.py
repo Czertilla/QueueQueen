@@ -16,6 +16,8 @@ async def delete_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
+
 if __name__ == "__main__":
     from database.sqlalchemy.base import Base
+
     asyncio.run(create_tables())

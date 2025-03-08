@@ -1,9 +1,6 @@
 from logging import getLogger
 from uuid import UUID
-from models.positions import PositionORM
 from models.queues import QueueORM
-from models.users import UserORM
-from aiogram.types.user import User
 from schemas.queues import SAddUserResponse, SQueueList, SRemoveUserResponse
 from schemas.users import SUser
 from utils.abstract.service import BaseService
@@ -20,7 +17,7 @@ class QueueService(BaseService):
     """
 
     async def get_queue_list(
-            self, chat_id: int, from_admin: bool = False
+        self, chat_id: int, from_admin: bool = False
     ) -> SQueueList:
         """
         Retrieves the queue list for a given chat.
@@ -39,14 +36,17 @@ class QueueService(BaseService):
             queue = await self.uow.queues.get_by_chat_id(chat_id)
             if isinstance(queue, QueueORM):
                 logger.debug(f"{queue.id=} exists")
-                queue_data: QueueORM = (
-                    await self.uow.queues.get_with_positions(queue.id))
+                queue_data: QueueORM = await self.uow.queues.get_with_positions(
+                    queue.id
+                )
                 assert isinstance(queue_data, QueueORM)
                 logger.debug("sorting positions by timestamps")
                 positions: list[SUser] = [
-                    SUser.model_validate(pos.user) for pos in sorted(
+                    SUser.model_validate(pos.user)
+                    for pos in sorted(
                         queue_data.positions, key=lambda pos: pos.created_at
-                    )]
+                    )
+                ]
                 logger.debug(f"{len(positions)} positions retrieved ad sorted")
                 response = SQueueList(id=queue_data.id, positions=positions)
             elif from_admin:
@@ -78,7 +78,7 @@ class QueueService(BaseService):
             chat_id (int): The ID of the chat.
 
         Returns:
-            SAddUserResponse: The response indicating the result of the 
+            SAddUserResponse: The response indicating the result of the
                 operation.
         """
         response: SAddUserResponse
@@ -96,13 +96,16 @@ class QueueService(BaseService):
                         )
                         if position == -1:
                             response = SAddUserResponse(
-                                queue_id=queue_data.id, user=user, position=-1)
+                                queue_id=queue_data.id, user=user, position=-1
+                            )
                         else:
                             response = SAddUserResponse(
-                                queue_id=queue.id, user=user, position=position)
+                                queue_id=queue.id, user=user, position=position
+                            )
                     else:
                         response = SAddUserResponse(
-                            queue_id=queue_data.id, user=None, position=-1)
+                            queue_id=queue_data.id, user=None, position=-1
+                        )
             else:
                 response = SAddUserResponse(
                     queue_id=None, user=user, position=-1)
@@ -121,7 +124,7 @@ class QueueService(BaseService):
             chat_id (int): The ID of the chat.
 
         Returns:
-            SRemoveUserResponse: The response indicating the result of the 
+            SRemoveUserResponse: The response indicating the result of the
                 operation.
         """
         response: SRemoveUserResponse
@@ -139,7 +142,8 @@ class QueueService(BaseService):
                             logger.debug(
                                 f"{user.id=} already not in {queue.id=}")
                             response = SRemoveUserResponse(
-                                queue_id=queue.id, user=user, is_already=True)
+                                queue_id=queue.id, user=user, is_already=True
+                            )
                         else:
                             logger.debug(f"{user.id=} removed from {queue.id}")
                             response = SRemoveUserResponse(
@@ -149,11 +153,9 @@ class QueueService(BaseService):
                             )
                     else:
                         logger.error(f"{user.id=} not found in database")
-                        response = SRemoveUserResponse(
-                            queue_id=queue.id, user=None)
+                        response = SRemoveUserResponse(queue_id=queue.id, user=None)
             else:
-                logger.warning(
-                    f"atempt quit non-existance queue in {chat_id=}")
+                logger.warning(f"atempt quit non-existance queue in {chat_id=}")
                 response = SRemoveUserResponse(queue_id=None, user=user)
             await self.uow.commit(True)
         logger.info(f"got {response=} for args=( {user=}, {chat_id=} )")
@@ -167,7 +169,7 @@ class QueueService(BaseService):
             chat_id (int): The ID of the chat.
 
         Returns:
-            Optional[UUID]: The ID of the cleared queue, or None if the queue 
+            Optional[UUID]: The ID of the cleared queue, or None if the queue
                 does not exist.
         """
         logger.info(f"clearing queue in {chat_id=}")
@@ -178,8 +180,7 @@ class QueueService(BaseService):
                 await self.uow.queues.clear(queue.id)
                 answer: UUID = queue.id
             else:
-                logger.warning(
-                    f"atempt clear non-existance queue in {chat_id=}")
+                logger.warning(f"atempt clear non-existance queue in {chat_id=}")
                 answer = None
             await self.uow.commit(True)
         return answer

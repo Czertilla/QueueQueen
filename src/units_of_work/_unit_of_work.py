@@ -11,6 +11,7 @@ class Count:
     """
     Simple counter class for demonstration purposes.
     """
+
     c = 0
 
 

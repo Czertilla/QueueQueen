@@ -102,8 +102,9 @@ class MessageTextBuilder:
             for p, pos in enumerate(queue_list.positions):
                 answer += f"\n {p} - {pos.first_name} {pos.last_name} (@{pos.username})"
             logger.debug(
-                f"constructed queue list with {len(queue_list.positions)}" +
-                " positions")
+                f"constructed queue list with {len(queue_list.positions)}"
+                + " positions"
+            )
         else:
             logger.debug("queue is empty")
             answer += "\n" + await self.get_phrase("empty")
@@ -115,7 +116,7 @@ class MessageTextBuilder:
         Constructs a message for adding a user to the queue.
 
         Args:
-            response (SAddUserResponse): The response containing user addition 
+            response (SAddUserResponse): The response containing user addition
                 details.
 
         Returns:
@@ -128,15 +129,14 @@ class MessageTextBuilder:
         if response.position == -1:
             logger.debug(f"user {tgid} is already in queue {queue_id}")
             return await self.get_phrase(
-                "already_in_queue",
-                username=response.user.username
+                "already_in_queue", username=response.user.username
             )
         else:
             logger.debug(f"user {tgid=} turned out added to {queue_id=}")
             return await self.get_phrase(
                 "new_position_ntf",
                 username=response.user.username,
-                pos_num=response.position
+                pos_num=response.position,
             )
 
     async def on_remove_user(self, response: SRemoveUserResponse) -> str:
@@ -157,9 +157,7 @@ class MessageTextBuilder:
             f"constructing msg for user {tgid=} rm from {queue_id=}, {msg_key=}"
         )
         return await self.get_phrase(
-            msg_key,
-            username=response.user.username,
-            queue_id=queue_id
+            msg_key, username=response.user.username, queue_id=queue_id
         )
 
     async def on_user_queue_crud(self, response: SUserQueueCrudResponse) -> str:
@@ -167,7 +165,7 @@ class MessageTextBuilder:
         Constructs a message based on a CRUD operation performed on the queue.
 
         Args:
-            response (SUserQueueCrudResponse): The response containing queue 
+            response (SUserQueueCrudResponse): The response containing queue
                 operation details.
 
         Returns:

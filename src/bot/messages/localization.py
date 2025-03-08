@@ -2,7 +2,7 @@ import logging
 import i18n
 import aiocache
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from utils.settings import getSettings
 
@@ -47,16 +47,17 @@ class Localization:
         Returns a string representation of the Localization instance.
 
         Returns:
-            str: A formatted string containing the class name, default language, and TTL.
+            str: A formatted string containing the class name, default 
+                language, and TTL.
         """
         return f"<Localization(default_lang={self.default_lang}, ttl={self.ttl})>"
 
     async def get(
-            self, key: str, lang: str | None = None,
-            markup: str = "HTML", **kwargs: Any
+        self, key: str, lang: str | None = None, markup: str = "HTML", **kwargs: Any
     ) -> str:
         """
-        Retrieves a localized string asynchronously. Uses caching to improve performance.
+        Retrieves a localized string asynchronously. Uses caching to improve
+        performance.
 
         Args:
             key (str): The translation key.

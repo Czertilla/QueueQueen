@@ -1,3 +1,3 @@
 from .bot import bot, dp
 
-all = ['bot', 'dp']
+__all__ = ["bot", "dp"]

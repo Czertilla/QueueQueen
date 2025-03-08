@@ -15,6 +15,7 @@ class SQueueList(BaseModel):
             or None if not available.
         is_new (bool): Indicates if the queue is newly created.
     """
+
     id: UUID | None
     positions: list[SUser] | None
     is_new: bool = False
@@ -33,6 +34,7 @@ class SUserQueueCrudResponse(BaseModel):
         user (SUser | None): The user involved in the operation,
             or None if not available.
     """
+
     queue_id: UUID | None
     user: SUser | None
 
@@ -52,6 +54,7 @@ class SAddUserResponse(SUserQueueCrudResponse):
             or None if not available.
         position (int): The position of the user in the queue.
     """
+
     position: int
 
 
@@ -70,5 +73,6 @@ class SRemoveUserResponse(SUserQueueCrudResponse):
         notificate_target (int | None): Telegram ID of the user
             to notify, or None if no notification is needed.
     """
+
     is_already: bool = False
     notificate_target: int | None = None

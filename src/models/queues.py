@@ -17,6 +17,4 @@ class QueueORM(Base):
     __tablename__ = "queues"
 
     chat_id: Mapped[int] = mapped_column(nullable=True)
-    positions: Mapped[list[PositionORM]] = relationship(
-        back_populates="queue"
-    )
+    positions: Mapped[list[PositionORM]] = relationship(back_populates="queue")

@@ -15,6 +15,6 @@ class SingletonMixin(object):
         Returns:
             The singleton instance of the class.
         """
-        if not hasattr(cls, 'instance'):
+        if not hasattr(cls, "instance"):
             cls.instance = super(SingletonMixin, cls).__new__(cls)
         return cls.instance

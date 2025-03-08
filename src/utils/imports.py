@@ -3,7 +3,7 @@ import importlib
 
 
 def load_common[T](
-        package_name: str, attr_name: str, expected_type: type[T]
+    package_name: str, attr_name: str, expected_type: type[T]
 ) -> list[T]:
     """
     Dynamically loads all modules in the given package and extracts common objects

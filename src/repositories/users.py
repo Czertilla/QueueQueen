@@ -13,6 +13,7 @@ class UserRepo(BaseRepo):
     """
     Repository for managing UserORM entities.
     """
+
     model = UserORM
 
     async def check_username(self, value: str) -> bool:
@@ -33,7 +34,6 @@ class UserRepo(BaseRepo):
         ).scalar_one_or_none()
         return user is not None
 
-
     async def get_by_tgid(self, tgid: int) -> model:
         """
         Retrieves a user by their Telegram ID.
@@ -45,14 +45,11 @@ class UserRepo(BaseRepo):
             The UserORM object, or None if not found.
         """
         return (
-            await self.execute(
-                select(UserORM)
-                .where(UserORM.tgid == tgid)
-            )
+            await self.execute(select(UserORM).where(UserORM.tgid == tgid))
         ).scalar_one_or_none()
 
     async def get_with_positions(self, id: UUID) -> model | None:
-        """ 
+        """
         Retrieves a user with their associated positions.
 
         Args:
