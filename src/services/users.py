@@ -30,6 +30,18 @@ class UserService(BaseService):
 
     @staticmethod    
     def filt_user_data(user_data: dict) -> dict:
+        """
+        Filters unnecessary attributes from the user data dictionary and
+            ensures it matches the `SUser` model. If the `id` attribute is
+            missing, a temporary UUID (version 1) is assigned and later removed.
+
+        Args:
+            user_data (dict): A dictionary containing user-related data.
+
+            Returns:
+            dict: A filtered dictionary that adheres to the `SUser` model
+                structure, with unnecessary attributes removed.
+        """
         logger.debug(f"filtering unnecessary attributes for {user_data=}")
         if f := 'id' not in user_data:
             user_data['id'] = uuid1()
