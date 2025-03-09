@@ -6,6 +6,7 @@ from schemas.queues import (
     SRemoveUserResponse,
     SUserQueueCrudResponse,
 )
+from utils.enums.locales import LocaleKey
 from utils.settings import getSettings
 from .localization import i18n_manager
 
@@ -64,7 +65,9 @@ class MessageTextBuilder:
             str: The localized message.
         """
         logger.debug(f"retrieving message for non-admin user @{username}")
-        return await self.get_phrase("not_admin_alert", username=username)
+        return await self.get_phrase(
+            LocaleKey.not_admin_alert, username=username
+        )
 
     async def on_your_turn_ntf(self) -> str:
         """
@@ -74,7 +77,7 @@ class MessageTextBuilder:
             str: The localized message.
         """
         logger.debug("Retrieving turn notification message")
-        return await self.get_phrase("head_ntf")
+        return await self.get_phrase(LocaleKey.head_ntf)
 
     async def on_queue_list(self, queue_list: SQueueList) -> str:
         """
@@ -107,7 +110,7 @@ class MessageTextBuilder:
             )
         else:
             logger.debug("queue is empty")
-            answer += "\n" + await self.get_phrase("empty")
+            answer += "\n" + await self.get_phrase(LocaleKey.empty)
 
         return answer
 
@@ -129,12 +132,12 @@ class MessageTextBuilder:
         if response.position == -1:
             logger.debug(f"user {tgid} is already in queue {queue_id}")
             return await self.get_phrase(
-                "already_in_queue", username=response.user.username
+                LocaleKey.already_in_queue, username=response.user.username
             )
         else:
             logger.debug(f"user {tgid=} turned out added to {queue_id=}")
             return await self.get_phrase(
-                "new_position_ntf",
+                LocaleKey.new_position_ntf,
                 username=response.user.username,
                 pos_num=response.position,
             )
@@ -173,10 +176,10 @@ class MessageTextBuilder:
         """
         if response.queue_id is None:
             logger.info("constructed queue not found alert")
-            return await self.get_phrase("queue_404")
+            return await self.get_phrase(LocaleKey.queue_404)
         if response.user is None:
             logger.info("constructed user not found alert")
-            return await self.get_phrase("user_404")
+            return await self.get_phrase(LocaleKey.user_404)
         if isinstance(response, SAddUserResponse):
             return await self.on_add_user(response)
         if isinstance(response, SRemoveUserResponse):
@@ -197,7 +200,7 @@ class MessageTextBuilder:
         """
         if queue_id is None:
             logger.debug("attempted to clear a non-existent queue")
-            return await self.get_phrase("no_queue")
+            return await self.get_phrase(LocaleKey.no_queue)
 
         logger.debug("constructed msg for clear a queue")
-        return await self.get_phrase("queue_cleared", queue_id=queue_id)
+        return await self.get_phrase(LocaleKey.queue_cleared, queue_id=queue_id)
