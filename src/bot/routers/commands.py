@@ -82,7 +82,7 @@ async def quit(message: Message, bot: Bot) -> None:
     if response.notificate_target is not None:
         await bot.send_message(
             chat_id=response.notificate_target,
-            text=await message_builder.on_your_turn_ntf(),
+            text=await message_builder.on_your_turn_ntf(response.queue_id),
             reply_markup=await InlineBuilder(message_builder).quit_kb(
                 message.chat.id
             )
