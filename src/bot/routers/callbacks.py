@@ -1,7 +1,49 @@
 
 from logging import getLogger
-from aiogram import Router
+from aiogram import Bot, Router, F
+from aiogram.types import CallbackQuery
+
+from bot.keyboards.inline import InlineBuilder
+from bot.messages.messages import MessageTextBuilder
+from services.queues import QueueService
+from services.users import UserService
+from units_of_work.all import AllUOW
+from utils.enums.callbacks import CallbackPrefix
+from utils.enums.locales import LocaleKey
 
 router = Router()
 
 logger = getLogger(__name__)
+
+
+@router.callback_query(F.data.startswith(CallbackPrefix.quit))
+async def quit(call: CallbackQuery, bot: Bot):
+    user = call.from_user
+    logger.info(f"handling {call.data=} from {user.id=}")
+    user_schema = await UserService(uow := AllUOW()).update_user(user)
+    message_builder = MessageTextBuilder()
+    logger.debug(f"getting chat_id from {call.data=} to quit from queue")
+    chat_id_str = call.data[len(CallbackPrefix.quit):]
+    try:
+        chat_id = int(chat_id_str)
+    except ValueError as e:
+        logger.error(
+            f"durring handling {call.data=} from {user.id=}, "
+            + f"invalid callback got {chat_id_str=}"
+        )
+        await call.message.reply(await message_builder.get_phrase(
+            LocaleKey.invalid_callback
+        ))
+        return
+    response = await QueueService(uow).remove_user(user_schema, chat_id)
+    if response.notificate_target is not None:
+        await bot.send_message(
+            chat_id=response.notificate_target,
+            text=await message_builder.on_your_turn_ntf(),
+            reply_markup=await InlineBuilder(message_builder).quit_kb(chat_id)
+        )
+    await call.message.edit_reply_markup()
+    await bot.send_message(
+        chat_id=chat_id,
+        text=await message_builder.on_remove_user(response)
+    )
