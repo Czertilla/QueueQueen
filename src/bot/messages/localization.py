@@ -57,6 +57,16 @@ class Localization:
 
     @staticmethod
     def hash_kwargs(kwargs: dict) -> str:
+        """
+        Creates a SHA256 hash from the passed dictionary, previously by 
+        sorting keys and processing UUID values.
+
+        Args:
+            kwargs (dict): A dictionary with hashing data.
+
+        Returns:
+            str: SHA-256 hash as a string.
+        """
         filtered_kwargs = {
             k: (v.__hash__() if isinstance(v, UUID) else v)
             for k, v in kwargs.items()
