@@ -1,3 +1,4 @@
+from enum import Enum
 import logging
 from uuid import UUID
 from schemas.queues import (
@@ -38,7 +39,7 @@ class MessageTextBuilder:
         logger.debug(
             f"initialized MessageTextBuilder(lang={lang}, markup={markup})")
 
-    async def get_phrase(self, key: str, **kwargs) -> str:
+    async def get_phrase(self, key: str | Enum, **kwargs) -> str:
         """
         Retrieves a localized phrase asynchronously.
 
@@ -49,6 +50,8 @@ class MessageTextBuilder:
         Returns:
             str: The localized and formatted phrase.
         """
+        if isinstance(key, Enum):
+            key = str(key.value)
         phrase = await i18n_manager.get(key, self.lang, self.markup, **kwargs)
         logger.debug(
             f"fetched phrase for key='{key}' with kwargs={kwargs}: '{phrase}'")
