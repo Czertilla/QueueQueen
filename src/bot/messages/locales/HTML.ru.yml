@@ -14,6 +14,7 @@ ru:
   queue_404: очередь не найдена
   queue_cleared: очередь %{queue_id} очищена
   queue_list_header: 'Очередь <code>%{queue_id}</code>:'
+  quit_button: выйти
   user_404: пользователь не найден
   user_not_in_queue: пользователь @%{username} не в очереди <code>%{queue_id}</code>
   user_removed: пользователь @%{username} удален из очереди <code>%{queue_id}</code>

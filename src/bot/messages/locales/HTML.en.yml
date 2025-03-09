@@ -14,6 +14,7 @@ en:
   queue_404: queue not found
   queue_cleared: the queue %{queue_id} has been cleared
   queue_list_header: 'Queue <code>%{queue_id}</code>:'
+  quit_button: quit
   user_404: user not found
   user_not_in_queue: user @%{username} not in queue <code>%{queue_id}</code>
   user_removed: user @%{username} removed from queue <code>%{queue_id}</code>
