@@ -1,8 +1,11 @@
 import logging
+from uuid import UUID
 import i18n
 import aiocache
 from pathlib import Path
 from typing import Any
+from hashlib import sha256
+import json
 
 from utils.settings import getSettings
 
@@ -51,6 +54,16 @@ class Localization:
                 language, and TTL.
         """
         return f"<Localization(default_lang={self.default_lang}, ttl={self.ttl})>"
+
+    @staticmethod
+    def hash_kwargs(kwargs: dict) -> str:
+        filtered_kwargs = {
+            k: (v.__hash__() if isinstance(v, UUID) else v)
+            for k, v in kwargs.items()
+        }
+        return sha256(
+            json.dumps(filtered_kwargs, sort_keys=True).encode()
+        ).hexdigest()
 
     async def get(
         self, key: str, lang: str | None = None, markup: str = "HTML", **kwargs: Any
