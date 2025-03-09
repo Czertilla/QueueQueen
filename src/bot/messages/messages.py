@@ -72,15 +72,18 @@ class MessageTextBuilder:
             LocaleKey.not_admin_alert, username=username
         )
 
-    async def on_your_turn_ntf(self) -> str:
+    async def on_your_turn_ntf(self, queue_id: UUID) -> str:
         """
         Returns a notification message when it's the user's turn.
+
+        Args:
+            queue_id (UUID): Еру id of the queue that the notified user is head
 
         Returns:
             str: The localized message.
         """
         logger.debug("Retrieving turn notification message")
-        return await self.get_phrase(LocaleKey.head_ntf)
+        return await self.get_phrase(LocaleKey.head_ntf, queue_id=queue_id.hex)
 
     async def on_queue_list(self, queue_list: SQueueList) -> str:
         """
@@ -102,7 +105,7 @@ class MessageTextBuilder:
 
         msg_key = "new_queue" if queue_list.is_new else "queue_list_header"
         logger.debug(f"constructing queue list, {msg_key=}")
-        answer = await self.get_phrase(msg_key, queue_id=queue_id)
+        answer = await self.get_phrase(msg_key, queue_id=queue_id.hex)
 
         if queue_list.positions:
             for p, pos in enumerate(queue_list.positions):
@@ -163,7 +166,7 @@ class MessageTextBuilder:
             f"constructing msg for user {tgid=} rm from {queue_id=}, {msg_key=}"
         )
         return await self.get_phrase(
-            msg_key, username=response.user.username, queue_id=queue_id
+            msg_key, username=response.user.username, queue_id=queue_id.hex
         )
 
     async def on_user_queue_crud(self, response: SUserQueueCrudResponse) -> str:
@@ -206,4 +209,4 @@ class MessageTextBuilder:
             return await self.get_phrase(LocaleKey.no_queue)
 
         logger.debug("constructed msg for clear a queue")
-        return await self.get_phrase(LocaleKey.queue_cleared, queue_id=queue_id)
+        return await self.get_phrase(LocaleKey.queue_cleared, queue_id=queue_id.hex)
