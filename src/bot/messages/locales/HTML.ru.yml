@@ -3,6 +3,7 @@ ru:
   already_in_queue: пользователь @%{username} уже в очереди
   empty: пусто
   head_ntf: К вам подошла очередь! Не забудьте выйти из нее
+  invalid_callback_data: это сообщение содержит некорректный callback data
   new_position_ntf: '@%{username}, теперь ваша позиция %{pos_num}'
   new_queue: 'Создана новая очередь (id: <code>%{queue_id}</code>)'
   new_queue_err: проблема с созданием новой очереди
