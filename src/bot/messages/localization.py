@@ -84,7 +84,7 @@ class Localization:
             str: The translated string.
         """
         lang = lang or self.default_lang
-        cache_key = f"i18n:{lang}:{key}"
+        cache_key = f"i18n:{lang}:{key}:{self.hash_kwargs(kwargs)}"
 
         # Check cache
         cached_translation: str | None = await self.cache.get(cache_key)
