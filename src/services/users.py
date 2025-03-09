@@ -62,6 +62,7 @@ class UserService(BaseService):
                 await self.uow.users.update(user_data, user_model.id)
             else:
                 logger.debug(f"data for {user=} not exists yet")
+                user_data = self.filt_user_data(user_data)
                 user_model = await self.uow.users.add_n_return(user_data)
             response = SUser.model_validate(user_model)
             await self.uow.commit(True)
