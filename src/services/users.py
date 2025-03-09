@@ -28,6 +28,16 @@ class UserService(BaseService):
         async with self.uow:
             return await self.uow.users.check_username(value)
 
+    @staticmethod    
+    def filt_user_data(user_data: dict) -> dict:
+        logger.debug(f"filtering unnecessary attributes for {user_data=}")
+        if f := 'id' not in user_data:
+            user_data['id'] = uuid1()
+        user_data = SUser(**user_data).model_dump()
+        if f:
+            user_data.pop('id')
+        return user_data
+
     async def update_user(self, user: User) -> SUser:
         """
         Updates or creates a user based on the provided aiogram User object.
