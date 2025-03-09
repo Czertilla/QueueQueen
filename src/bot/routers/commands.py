@@ -2,11 +2,11 @@ from logging import getLogger
 from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.filters import CommandStart, Command
+from bot.keyboards.inline import InlineBuilder
 from bot.messages.messages import MessageTextBuilder
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
-from ..messages.localization import i18n_manager
 
 router = Router()
 
@@ -82,7 +82,10 @@ async def quit(message: Message, bot: Bot) -> None:
     if response.notificate_target is not None:
         await bot.send_message(
             chat_id=response.notificate_target,
-            text=await message_builder.on_your_turn_ntf()
+            text=await message_builder.on_your_turn_ntf(),
+            reply_markup=await InlineBuilder(message_builder).quit_kb(
+                message.chat.id
+            )
         )
     await message.answer(await message_builder.on_remove_user(response))
 
