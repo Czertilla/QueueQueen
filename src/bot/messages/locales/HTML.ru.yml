@@ -2,19 +2,22 @@
 ru:
   already_in_queue: пользователь @%{username} уже в очереди
   empty: пусто
-  head_ntf: К вам подошла очередь! Не забудьте выйти из нее
-  invalid_callback_data: это сообщение содержит некорректный callback data
+  head_ntf: |-
+    Теперь ваш черед!
+    В очереди #%{queue_id}
+    Не забудьте выйти из очереди
+  invalid_callback_data: это сообщение содержит неверные данные обратного вызова
   new_position_ntf: '@%{username}, теперь ваша позиция %{pos_num}'
-  new_queue: 'Создана новая очередь (id: <code>%{queue_id}</code>)'
+  new_queue: 'Новая очередь создана (id: #%{queue_id})'
   new_queue_err: проблема с созданием новой очереди
   no_queue: в этом чате нет очереди
   not_admin_alert: |-
-    @%{username}, вы не администратор. 
+    @%{username}, вы не администратор.
     Добавьте этого бота в чат, где вы являетесь администратором
   queue_404: очередь не найдена
-  queue_cleared: очередь %{queue_id} очищена
-  queue_list_header: 'Очередь <code>%{queue_id}</code>:'
+  queue_cleared: 'Очередь #%{queue_id} очищена'
+  queue_list_header: 'Очередь #%{queue_id}:'
   quit_button: выйти
   user_404: пользователь не найден
-  user_not_in_queue: пользователь @%{username} не в очереди <code>%{queue_id}</code>
-  user_removed: пользователь @%{username} удален из очереди <code>%{queue_id}</code>
+  user_not_in_queue: 'Пользователь @%{username} не в очереди #%{queue_id}'
+  user_removed: 'Пользователь @%{username} удален из очереди #%{queue_id}'
