@@ -1,5 +1,5 @@
 from logging import getLogger
-from uuid import UUID
+from uuid import UUID, uuid1
 from models.users import UserORM
 from schemas.users import SUser
 from utils.abstract.service import BaseService
@@ -57,8 +57,7 @@ class UserService(BaseService):
             if isinstance(user_model, UserORM):
                 logger.debug(f"data for {user=} already exists")
                 user_data.update({"id": user_model.id})
-                logger.debug(f"filtering unnecessary attributes for {user=}")
-                user_data = SUser(**user_data).model_dump()
+                user_data = self.filt_user_data(user_data)
                 await self.uow.users.update(user_data, user_model.id)
             else:
                 logger.debug(f"data for {user=} not exists yet")
