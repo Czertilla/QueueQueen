@@ -18,7 +18,7 @@ class InlineBuilder(InlineKeyboardBuilder):
                     text=await self.text_builder.get_phrase(
                         LocaleKey.quit_button
                     ),
-                    callback_data=f"{CallbackPrefix.quit}{chat_id}"
+                    callback_data=f"{CallbackPrefix.quit.value}{chat_id}"
                 )
             ]
         ]
