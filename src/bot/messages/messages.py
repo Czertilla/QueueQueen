@@ -84,7 +84,9 @@ class MessageTextBuilder:
         """
         return (
             await self.get_phrase(LocaleKey.help_info_reg, link=link) +
-            await self.get_phrase(LocaleKey.help_info_footer)
+            await self.get_phrase(
+                LocaleKey.help_info_footer, ver=getSettings().VERSION
+            )
         )
 
     async def on_help_admin(self, link: str) -> str:
@@ -99,7 +101,9 @@ class MessageTextBuilder:
         return (
             await self.get_phrase(LocaleKey.help_info_reg, link=link) +
             await self.get_phrase(LocaleKey.help_info_admin) +
-            await self.get_phrase(LocaleKey.help_info_footer)
+            await self.get_phrase(
+                LocaleKey.help_info_footer, ver=getSettings().VERSION
+            )
         )
 
     async def on_help_personal(self, link: str) -> str:
