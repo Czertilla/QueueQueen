@@ -1,6 +1,7 @@
 ---
 en:
   already_in_queue: пользователь @%{username} уже в очереди
+  button_invite: "добавить в чат"
   cansel_button: "отмена"
   cmd_kick_invalid: |-
     команда <blockquote>/kick %{args}</blockquote> неверна
@@ -22,6 +23,10 @@ en:
   not_admin_alert: |-
     @%{username}, вы не администратор.
     Добавьте этого бота в чат, где вы являетесь администратором
+  personal_start: |-
+    Привет, %{first_name}. Этот бот может создавать ваши очереди в группах и управлять ими. 
+    Теперь я могу отправлять вам уведомления о входящих очередях. 
+    Для получения дополнительной информации пишите /help
   queue_404: очередь не найдена
   queue_cleared: 'Очередь #%{queue_id} очищена'
   queue_list_header: 'Очередь #%{queue_id}:'

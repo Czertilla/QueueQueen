@@ -1,6 +1,7 @@
 ---
 en:
   already_in_queue: user @%{username} already in queue
+  button_invite: "add to chat"
   cansel_button: "cansel"
   cmd_kick_invalid: |-
     command <blockquote>/kick %{args}</blockquote> is invalid
@@ -22,6 +23,10 @@ en:
   not_admin_alert: |-
     @%{username}, you are not admin. 
     Add this bot to chat, where you`re admin
+  personal_start: |-
+    Hi, %{first_name}. This bot can create and manage your queues in groups. 
+    Now I can send you notifications about an incoming queue. 
+    For more information, write /help
   queue_404: queue not found
   queue_cleared: 'the queue #%{queue_id} has been cleared'
   queue_list_header: 'Queue #%{queue_id}:'
