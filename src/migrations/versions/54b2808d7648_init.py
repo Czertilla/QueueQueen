@@ -30,13 +30,13 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("username", sa.String(), nullable=True),
-        sa.Column("tgid", sa.Integer(), nullable=False),
+        sa.Column("tgid", sa.Integer(), nullable=False, unique=True),
         sa.Column("first_name", sa.String(), nullable=True),
         sa.Column("last_name", sa.String(), nullable=True),
         sa.Column("language_code", sa.String(), nullable=True),
         sa.Column("is_bot", sa.Boolean(), nullable=False),
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.PrimaryKeyConstraint("tgid", "id"),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "positions",
