@@ -1,5 +1,5 @@
 ---
-en:
+ru:
   already_in_queue: пользователь @%{username} уже в очереди
   button_cansel: "отмена"
   button_kick: "исключить"
