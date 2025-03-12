@@ -177,6 +177,30 @@ class MessageTextBuilder:
                 pos_num=response.position,
             )
 
+    async def on_ivalid_command(
+            self, command: str, argumets: str | None = None
+    ) -> str:
+        """
+        Constructs a message for invalid commands.
+
+        Args:
+            command (str): invalid command name
+            arguments (str): arguments follows command
+
+        Returns:
+            str: The localized message
+        """
+        logger.debug(f"constructing msg on invalid {command=}")
+        match command:
+            case "kick":
+                logger.debug("construct msg for /kick invalid")
+                return await self.get_phrase(
+                    LocaleKey.kick_invalid, args=argumets if argumets else ""
+                )
+            case _:
+                logger.warning(f"unknow arg {command=} raise default case")
+                return command
+
     async def on_remove_user(self, response: SRemoveUserResponse) -> str:
         """
         Constructs a message for removing a user from the queue.
