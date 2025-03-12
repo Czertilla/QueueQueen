@@ -10,6 +10,7 @@ from schemas.queues import (
 from utils.enums.locales import LocaleKey
 from utils.settings import getSettings
 from .localization import i18n_manager
+from aiogram.types import User
 
 DEFAULT_MARKUP: str = getSettings().BOT_PARSE_MODE.value
 
@@ -71,6 +72,46 @@ class MessageTextBuilder:
         return await self.get_phrase(
             LocaleKey.not_admin_alert, username=username
         )
+
+    async def on_help(self, link: str) -> str:
+        """_summary_
+
+        Args:
+            link (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        return (
+            await self.get_phrase(LocaleKey.help_info_reg, link=link) +
+            await self.get_phrase(LocaleKey.help_info_footer)
+        )
+
+    async def on_help_admin(self, link: str) -> str:
+        """_summary_
+
+        Args:
+            link (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        return (
+            await self.get_phrase(LocaleKey.help_info_reg, link=link) +
+            await self.get_phrase(LocaleKey.help_info_admin) +
+            await self.get_phrase(LocaleKey.help_info_footer)
+        )
+
+    async def on_help_personal(self, link: str) -> str:
+        """_summary_
+
+        Args:
+            link (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        return await self.on_help_admin(link=link)
 
     async def on_your_turn_ntf(self, queue_id: UUID) -> str:
         """
