@@ -52,6 +52,46 @@ async def start(message: Message, bot: Bot) -> None:
         )
 
 
+@router.message(Command("help"))
+async def help(message: Message, bot: Bot) -> None:
+    """
+    Handles the /help command.
+
+    Sends a message with help information, depending on the chat and the
+    status of the requested one.
+
+    Args:
+        message (Message): The incoming Message object.
+        bot (Bot): The Bot instance.
+    """
+    user = message.from_user
+    logger.info(f"handling /help cmd from {user.id=}")
+    message_builder = MessageTextBuilder(lang=user.language_code)
+    link = "t.me/"+(await bot.get_me()).username
+    if (message.from_user.id == message.chat.id):
+        logger.debug(f"cmd was printed in personal chat {user.id=}")
+        await message.answer(
+            await message_builder.on_help_personal("")
+        )
+        return
+    member = await message.chat.get_member(user.id)
+    if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
+        logger.debug(
+            f"cmd was printed by admin {member.user.id=} in "
+            +f"{message.chat.id=}")
+        await message.answer(
+            await message_builder.on_help_admin(link)
+        )
+    else:
+        logger.debug(
+            f"cmd was printed by regular member {member.user.id=} in "
+            +f"{message.chat.id=}")    
+        await message.answer(
+            await message_builder.on_help(link)
+        )
+        
+
+
 @router.message(Command("join"))
 async def join(message: Message) -> None:
     """

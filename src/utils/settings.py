@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     BOT_PARSE_MODE: ParseMode = ParseMode.HTML
     """The message parsing mode for the Telegram bot (e.g., Markdown, HTML)."""
 
+    VERSION: str
+    """The version of this project, displays in messages and descripions"""
+
     model_config = SettingsConfigDict(env_file=environ, extra="ignore")
     """Configuration for Pydantic settings, defining how environment variables are loaded."""
 
