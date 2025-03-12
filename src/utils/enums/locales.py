@@ -3,6 +3,10 @@ from enum import Enum
 
 class LocaleKey(str, Enum):
     already_in_queue = "already_in_queue"
+    cansel_button = "cansel_button"
+    kick_invalid = "cmd_kick_invalid"
+    kick_confirm = "kick_confirm"
+    kick_button = "kick_button"
     empty = "empty"
     head_ntf = "head_ntf"
     invalid_callback = "invalid_callback_data"
