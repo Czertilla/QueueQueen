@@ -1,12 +1,15 @@
 from logging import getLogger
 from aiogram import Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, CommandObject
 from bot.keyboards.inline import InlineBuilder
 from bot.messages.messages import MessageTextBuilder
+from schemas.queues import SRemoveUserResponse
+from schemas.users import SUser
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
+from re import match
 
 router = Router()
 
@@ -100,6 +103,8 @@ async def check(message: Message) -> None:
     Args:
         message (Message): The incoming Message object.
     """
+    user = message.from_user
+    logger.info(f"handling /check cmd from {user.id=}")
     response = await QueueService(AllUOW()).get_queue_list(message.chat.id)
     await message.answer(await MessageTextBuilder().on_queue_list(response))
 
@@ -115,13 +120,65 @@ async def clear(message: Message) -> None:
         message (Message): The incoming Message object.
     """
     user = message.from_user
+    logger.info(f"handling /clear cmd from {user.id=}")
     await UserService(uow := AllUOW()).update_user(user)
-    member = await message.chat.get_member(user.id)
+    chat = message.chat
+    member = await chat.get_member(user.id)
     message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
-        response = await QueueService(uow).clear_queue(message.chat.id)
+        logger.debug(f"member {user.id} is admin of {chat.id=}")
+        response = await QueueService(uow).clear_queue(chat.id)
         await message.answer(message_builder.on_clear_queue(response))
     else:
+        logger.debug(f"member {user.id} is not admin of {chat.id=}")
         await message.answer(
             await message_builder.on_not_admin(message.from_user.username)
         )
+
+
+@router.message(Command("kick"))
+async def kick(message: Message, command: CommandObject) -> None:
+    """_summary_
+
+    Args:
+        message (Message): _description_
+        command (CommandObject): _description_
+    """
+    arguments = command.args
+    user = message.from_user
+    logger.info(f"handling /kick cmd with {arguments=} from {user.id=}")
+    message_builder = MessageTextBuilder()
+    chat = message.chat
+    member = await chat.get_member(user.id)
+    if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
+        logger.debug(f"member {user.id} is not admin of {chat.id=}")
+        await message.answer(
+            await message_builder.on_not_admin(message.from_user.username)
+        )
+        return
+    logger.debug(f"member {user.id} is admin of {chat.id=}")
+    if not isinstance(arguments, str) or not (
+        isdigit := arguments.isdigit()
+    ) and not match(r'@[A-Za-z_][A-Za-z0-9_]+', arguments):
+        await message.reply(
+            text=await message_builder.on_ivalid_command("kick", arguments)
+        )
+        logger.info(f"/kick {arguments=} is invalid")
+        return
+    target = arguments if isdigit else arguments[1:]
+    response = await QueueService(AllUOW()).check_position(
+        target, message.chat.id
+    )
+    if not isinstance(response, SRemoveUserResponse):
+        await message.reply(
+            "error"  # TODO
+        )
+        return
+    keyboard = (
+        await InlineBuilder(message_builder).kick_kb(response.user.tgid)
+        if response.user is not None and not response.is_already else None
+    )
+    await message.answer(
+        text=await message_builder.on_cmd_kick(response),
+        reply_markup=keyboard
+    )
