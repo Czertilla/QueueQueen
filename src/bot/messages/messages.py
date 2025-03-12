@@ -135,7 +135,7 @@ class MessageTextBuilder:
         tgid = response.user.tgid
         logger.debug(f"constructing msg for user {tgid=} added to {queue_id=}")
 
-        if response.position == -1:
+        if response.is_already == True:
             logger.debug(f"user {tgid} is already in queue {queue_id}")
             return await self.get_phrase(
                 LocaleKey.already_in_queue, username=response.user.username
