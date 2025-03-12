@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 
 
 @router.message(CommandStart())
-async def start(message: Message) -> None:
+async def start(message: Message, bot: Bot) -> None:
     """
     Handles the /start command.
 
@@ -30,9 +30,16 @@ async def start(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /start cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
+    message_builder = MessageTextBuilder()
+    if (message.chat.id == user.id):
+        inline_builder = InlineBuilder(message_builder)
+        bot_username = (await bot.get_me()).username
+        await message.answer(
+            await message_builder.on_personal_start(user.first_name),
+            reply_markup=await inline_builder.invite_kb(bot_username))
+        return
     logger.debug(f"getting chat memger info by {user.id=}")
     member = await message.chat.get_member(user.id)
-    message_builder = MessageTextBuilder()
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member {user.id=} got enough rights to start bot")
         queue_list = await QueueService(uow).get_queue_list(
@@ -128,7 +135,7 @@ async def clear(message: Message) -> None:
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member {user.id} is admin of {chat.id=}")
         response = await QueueService(uow).clear_queue(chat.id)
-        await message.answer(message_builder.on_clear_queue(response))
+        await message.answer(await message_builder.on_clear_queue(response))
     else:
         logger.debug(f"member {user.id} is not admin of {chat.id=}")
         await message.answer(
