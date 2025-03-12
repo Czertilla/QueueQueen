@@ -13,7 +13,7 @@ class LocaleKey(str, Enum):
     help_info_admin = "help_info_admin" 
     help_info_footer = "help_info_footer"
     invalid_callback = "invalid_callback_data"
-    invite_button = "invite_button"
+    invite_button = "button_invite"
     new_position_ntf = "new_position_ntf"
     new_queue = "new_queue"
     new_queue_err = "new_queue_err"
