@@ -65,3 +65,20 @@ class UserRepo(BaseRepo):
                 .options(selectinload(self.model.positions))
             )
         ).scalar_one_or_none()
+
+    async def get_by_username(self, username: str) -> model:
+        """
+        Retrieves a user by their Telegram username.
+
+        Args:
+            username (str): The Telegram username without `@` of user
+
+        Returns:
+            model: The UserORM object, or None if not found.
+        """
+        logger.debug(f"getting user by {username=}")
+        return (
+            await self.execute(
+                select(UserORM).where(UserORM.username == username)
+            )
+        ).scalar_one_or_none()
