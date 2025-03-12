@@ -1,6 +1,8 @@
 from logging import getLogger
 from uuid import UUID
+from models.positions import PositionORM
 from models.queues import QueueORM
+from models.users import UserORM
 from schemas.queues import SAddUserResponse, SQueueList, SRemoveUserResponse
 from schemas.users import SUser
 from utils.abstract.service import BaseService
@@ -153,9 +155,11 @@ class QueueService(BaseService):
                             )
                     else:
                         logger.error(f"{user.id=} not found in database")
-                        response = SRemoveUserResponse(queue_id=queue.id, user=None)
+                        response = SRemoveUserResponse(
+                            queue_id=queue.id, user=None)
             else:
-                logger.warning(f"atempt quit non-existance queue in {chat_id=}")
+                logger.warning(
+                    f"atempt quit non-existance queue in {chat_id=}")
                 response = SRemoveUserResponse(queue_id=None, user=user)
             await self.uow.commit(True)
         logger.info(f"got {response=} for args=( {user=}, {chat_id=} )")
@@ -180,7 +184,100 @@ class QueueService(BaseService):
                 await self.uow.queues.clear(queue.id)
                 answer: UUID = queue.id
             else:
-                logger.warning(f"atempt clear non-existance queue in {chat_id=}")
+                logger.warning(
+                    f"atempt clear non-existance queue in {chat_id=}")
                 answer = None
             await self.uow.commit(True)
         return answer
+
+    async def check_position(
+            self, target: str | int, chat_id: int
+    ) -> SRemoveUserResponse | None:
+        """
+        Check position in queue for given chat by target username or position
+        number
+
+        Args:
+            target (str | int): target user`s username or number in queue
+
+        Returns:
+            SRemoveUserResponse: information about existance queue and user
+            or `None` if some porblems during checking
+        """
+        logger.debug(f"check position {target=} for chat")
+        response: SRemoveUserResponse
+        async with self.uow:
+            queue = await self.uow.queues.get_by_chat_id(chat_id)
+            if isinstance(queue, QueueORM):
+                logger.debug(f"{queue.id=} exists in {chat_id=}")
+                queue_data = await self.uow.queues.get_with_positions(queue.id)
+                if not isinstance(queue_data, QueueORM):
+                    logger.error(
+                        f"getting queue_data with positions for {queue.id}"
+                        + f"results in unexpected {type(queue_data)=}")
+                    return
+                if (isdigit := target.isdigit()) \
+                        and 0 <= int(target) < len(queue_data.positions):
+                    position = queue_data.positions[int(target)]
+                    if not isinstance(position, PositionORM):
+                        logger.error(
+                            f"getting position from {queue_data.id=}"
+                            + f"results in unexpected {type(position)=}")
+                        return
+                    logger.debug(f"getting user from {position.id}")
+                    user = await self.uow.users.get(position.user_id)
+                    if not isinstance(user, UserORM):
+                        logger.error(
+                            f"getting user from {position.id=}"
+                            + f"results in unexpected {type(user)=}")
+                        return
+                    response = SRemoveUserResponse(
+                        queue_id=queue.id,
+                        user=SUser.model_validate(user)
+                    )
+                elif isdigit:
+                    logger.debug(
+                        f"{target=} position in queue in {chat_id=}"
+                        + " not exists")
+                    response = SRemoveUserResponse(
+                        user=None, queue_id=queue.id
+                    )
+                else:
+                    user = await self.uow.users.get_by_username(target)
+                    if not isinstance(user, UserORM):
+                        logger.debug(f"unknown username={target}")
+                        response = SRemoveUserResponse(
+                            user=None, queue_id=queue.id
+                        )
+                    else:
+                        positions = tuple(filter(
+                            lambda x: isinstance(x, PositionORM
+                                                 ) and x.user_id == user.id,
+                            queue_data.positions
+                        ))
+                        user_schema = SUser.model_validate(user)
+                        if (l := len(positions)) == 0:
+                            logger.debug(f"{user.id=} not in {queue.id=}")
+                            response = SRemoveUserResponse(
+                                user=user_schema,
+                                queue_id=queue.id,
+                                is_already=True
+                            )
+                        elif l > 1:
+                            logger.error(
+                                "unexpacted positions count got "
+                                + f"for {user.id=} in {queue.id=}")
+                            return
+                        else:
+                            response = SRemoveUserResponse(
+                                user=user_schema,
+                                queue_id=queue.id
+                            )
+            else:
+                logger.warning(
+                    f"atempt check pos in non-existance queue in {chat_id=}")
+                response = SRemoveUserResponse(user=None, queue_id=None)
+        logger.info(
+            f"{response=} during checking position for {target=},"
+            + " {chat_id=}")
+        return response
