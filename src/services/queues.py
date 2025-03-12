@@ -294,14 +294,16 @@ class QueueService(BaseService):
     async def _get_user_from_position(
             self, queue: QueueORM, pos_idx: int
     ) -> SRemoveUserResponse | None:
-        """_summary_
+        """
+        Retrieves user information based on position index in the queue.
 
         Args:
-            queue (QueueORM): _description_
-            pos_idx (int): _description_
+            queue (QueueORM): The queue object containing user positions.
+            pos_idx (int): The index of the user position in the queue.
 
         Returns:
-            SRemoveUserResponse | None: _description_
+            SRemoveUserResponse | None: A response object containing user details 
+            if found, otherwise None.
         """
         position = queue.positions[pos_idx]
         if not isinstance(position, PositionORM):
@@ -322,14 +324,16 @@ class QueueService(BaseService):
     async def _get_user_from_username(
             self, queue: QueueORM, username: str
     ) -> SRemoveUserResponse:
-        """_summary_
+        """
+        Retrieves user information based on username from the queue.
 
         Args:
-            queue (QueueORM): _description_
-            username (str): _description_
+            queue (QueueORM): The queue object containing user positions.
+            username (str): The username of the target user.
 
         Returns:
-            SRemoveUserResponse: _description_
+            SRemoveUserResponse: A response object containing user details, 
+            or indicating if the user is not in the queue.
         """
         user = await self.uow.users.get_by_username(username)
         if not isinstance(user, UserORM):

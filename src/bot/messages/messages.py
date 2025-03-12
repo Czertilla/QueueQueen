@@ -58,13 +58,18 @@ class MessageTextBuilder:
         return phrase
 
     async def on_cmd_kick(self, response: SRemoveUserResponse) -> str:
-        """_summary_
+        """
+        Constructs a message based on the user removal response.
+
+        This method processes the given response and returns an appropriate 
+        message indicating the status of the user removal operation.
 
         Args:
-            response (SRemoveUserResponse): _description_
+            response (SRemoveUserResponse): The response object containing 
+                details about the user removal attempt.
 
         Returns:
-            str: _description_
+            str: A localized message describing the result of the operation.
         """
         logger.debug(f"constructing msg for service {response=}")
         if not isinstance(response.queue_id, UUID):

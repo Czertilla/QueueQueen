@@ -138,11 +138,18 @@ async def clear(message: Message) -> None:
 
 @router.message(Command("kick"))
 async def kick(message: Message, command: CommandObject) -> None:
-    """_summary_
+    """
+    Handles the /kick command to remove a user from the queue.
+
+    This function checks if the sender is an admin and processes the 
+    provided argument to determine the target user. If valid, it attempts 
+    to remove the user from the queue and returns an appropriate response.
 
     Args:
-        message (Message): _description_
-        command (CommandObject): _description_
+        message (Message): The message object containing details of the 
+            command sender and chat.
+        command (CommandObject): The command object containing arguments 
+            passed with the /kick command.
     """
     arguments = command.args
     user = message.from_user
