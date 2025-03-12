@@ -42,6 +42,41 @@ async def start(message: Message) -> None:
         )
 
 
+@router.message(Command("help"))
+async def help(message: Message, bot: Bot) -> None:
+    """_summary_
+
+    Args:
+        message (Message): _description_
+    """
+    user = message.from_user
+    logger.info(f"handling /help cmd from {user.id=}")
+    message_builder = MessageTextBuilder()
+    link = "@"+(await bot.get_me()).username
+    if (message.from_user.id == message.chat.id):
+        logger.debug(f"cmd was printed in personal chat {user.id=}")
+        await message.answer(
+            await message_builder.on_help_personal()
+        )
+        return
+    member = message.chat.get_member(user.id)
+    if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
+        logger.debug(
+            f"cmd was printed by admin {member.user_id=} in "
+            +f"{member.chat_id=}")
+        await message.answer(
+            await message_builder.on_help_admin(user)
+        )
+    else:
+        logger.debug(
+            f"cmd was printed by regular member {member.user_id=} in "
+            +f"{member.chat_id=}")    
+        await message.answer(
+            await message_builder.on_help()
+        )
+        
+
+
 @router.message(Command("join"))
 async def join(message: Message) -> None:
     """
