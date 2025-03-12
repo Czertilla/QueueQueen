@@ -57,6 +57,35 @@ class MessageTextBuilder:
             f"fetched phrase for key='{key}' with kwargs={kwargs}: '{phrase}'")
         return phrase
 
+    async def on_cmd_kick(self, response: SRemoveUserResponse) -> str:
+        """_summary_
+
+        Args:
+            response (SRemoveUserResponse): _description_
+
+        Returns:
+            str: _description_
+        """
+        logger.debug(f"constructing msg for service {response=}")
+        if not isinstance(response.queue_id, UUID):
+            logger.debug(f"queue not exists in target chat")
+            return await self.get_phrase(LocaleKey.no_queue)
+        if response.user is None:
+            logger.debug(f"user unexists")
+            return await self.get_phrase(LocaleKey.user_404)
+        if response.is_already:
+            logger.debug(f"{response.user.id} not in {response.queue_id}")
+            return await self.get_phrase(
+                LocaleKey.user_not_in_queue,
+                username=response.user.username,
+                queue_id=response.queue_id
+            )
+        return await self.get_phrase(
+            LocaleKey.kick_confirm,
+            username=response.user.username,
+            queue_id=response.queue_id.hex
+        )
+
     async def on_not_admin(self, username: str) -> str:
         """
         Returns a message notifying that the user is not an admin.
