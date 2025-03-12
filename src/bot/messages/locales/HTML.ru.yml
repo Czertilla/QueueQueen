@@ -1,15 +1,16 @@
 ---
 en:
   already_in_queue: пользователь @%{username} уже в очереди
+  button_cansel: "отмена"
+  button_kick: "исключить"
   button_invite: "добавить в чат"
-  cansel_button: "отмена"
+  button_quit: "выйти"
   cmd_kick_invalid: |-
     команда <blockquote>/kick %{args}</blockquote> неверна
     Правильный синтаксис: <code>/kick @u</code>, где `@u` это имя целевого пользователя для удаления из очереди.
     Вы можете скопировать имя пользователя из списка очереди командой /check.
     Также вы можете указать целевого пользователя по его номеру в очереди, но это <b>не рекомендуется</b>
   empty: пусто
-  kick_button: "исключить"
   kick_confirm: "Подтвердите исключение @%{username} из очереди #%{queue_id}"
   head_ntf: |-
     сейчас твоя очередь!
@@ -59,7 +60,6 @@ en:
   queue_404: очередь не найдена
   queue_cleared: 'очередь #%{queue_id} была очищена'
   queue_list_header: 'Очередь #%{queue_id}:'
-  quit_button: выйти
   user_404: пользователь не найден
   user_not_in_queue: 'пользователь @%{username} не в очереди #%{queue_id}'
   user_removed: 'пользователь @%{username} удален из очереди #%{queue_id}'

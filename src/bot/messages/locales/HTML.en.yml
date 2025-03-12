@@ -1,15 +1,16 @@
 ---
 en:
   already_in_queue: user @%{username} already in queue
+  button_cansel: "cansel"
+  button_kick: "kick"
   button_invite: "add to chat"
-  cansel_button: "cansel"
+  button_quit: "quit"
   cmd_kick_invalid: |-
     command <blockquote>/kick %{args}</blockquote> is invalid
     Correct syntax: <code>/kick @u</code>, where `@u` is is of target user for kick from queue.
     You can copy username from queue list by /ckeck cmd. 
     Also you can just specify target user by his position number, but <b>not recomended</b>
   empty: empty
-  kick_button: "kick"
   kick_confirm: "Confirm the kick @%{username} from queue #%{queue_id}"
   head_ntf: |-
     it`s your turn now! 
@@ -59,7 +60,6 @@ en:
   queue_404: queue not found
   queue_cleared: 'the queue #%{queue_id} has been cleared'
   queue_list_header: 'Queue #%{queue_id}:'
-  quit_button: quit
   user_404: user not found
   user_not_in_queue: 'user @%{username} not in queue #%{queue_id}'
   user_removed: 'user @%{username} removed from queue #%{queue_id}'
