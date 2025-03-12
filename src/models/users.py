@@ -22,7 +22,7 @@ class UserORM(Base):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(nullable=True)
-    tgid: Mapped[int] = mapped_column(primary_key=True)
+    tgid: Mapped[int] = mapped_column(unique=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
     language_code: Mapped[str] = mapped_column(nullable=True)
