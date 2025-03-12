@@ -2,6 +2,7 @@
 from logging import getLogger
 from aiogram import Bot, Router, F
 from aiogram.types import CallbackQuery
+from aiogram.types import ChatMemberAdministrator, ChatMemberOwner
 
 from bot.keyboards.inline import InlineBuilder
 from bot.messages.messages import MessageTextBuilder
@@ -47,3 +48,66 @@ async def quit(call: CallbackQuery, bot: Bot):
         chat_id=chat_id,
         text=await message_builder.on_remove_user(response)
     )
+
+
+@router.callback_query(F.data.startswith(CallbackPrefix.kick))
+async def kick(call: CallbackQuery, bot: Bot):
+    user = call.from_user
+    member = await bot.get_chat_member(call.message.chat.id, user.id)
+    logger.info(f"handling {call.data=} from {user.id=}")
+    message_builder = MessageTextBuilder()
+    if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
+        logger.debug(f"member got not enouth rights to kick user")
+        await call.message.answer(
+            await message_builder.on_not_admin(user.username)
+        )
+        return
+    target_tgid_str = call.data[len(CallbackPrefix.kick.value):]
+    try:
+        target_tgid = int(target_tgid_str)
+    except ValueError as e:
+        logger.error(
+            f"durring handling {call.data=} from {user.id=}, "
+            + f"invalid callback got {target_tgid_str=}"
+        )
+        await call.message.reply(await message_builder.get_phrase(
+            LocaleKey.invalid_callback
+        ))
+        return
+    target_member = await bot.get_chat_member(call.message.chat.id, target_tgid)
+    target_user = getattr(target_member, "user", None)
+    if target_user is None:
+        logger.error(f"got unexists user during handling {call.data=}")
+        await call.message.reply(
+            await message_builder.get_phrase(LocaleKey.invalid_callback)
+        )
+        return
+    user_schema = await UserService(uow := AllUOW()).update_user(target_user)
+    response = await QueueService(uow).remove_user(
+        user_schema, call.message.chat.id
+    )
+    if response.notificate_target is not None:
+        await bot.send_message(
+            chat_id=response.notificate_target,
+            text=await message_builder.on_your_turn_ntf(response.queue_id),
+            reply_markup=await InlineBuilder(message_builder).quit_kb(
+                call.message.chat.id
+            )
+        )
+    await call.message.answer(await message_builder.on_remove_user(response))
+    await call.message.delete()
+
+
+@router.callback_query(F.data.startswith(CallbackPrefix.cansel))
+async def cansel(call: CallbackQuery, bot: Bot):
+    user = call.from_user
+    member = await bot.get_chat_member(call.message.chat.id, user.id)
+    logger.info(f"handling {call.data=} from {user.id=}")
+    message_builder = MessageTextBuilder()
+    if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
+        logger.debug(f"member got not enouth rights to kick user")
+        await call.message.answer(
+            await message_builder.on_not_admin(user.username)
+        )
+        return
+    await call.message.delete()
