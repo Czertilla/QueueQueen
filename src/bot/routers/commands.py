@@ -44,35 +44,40 @@ async def start(message: Message) -> None:
 
 @router.message(Command("help"))
 async def help(message: Message, bot: Bot) -> None:
-    """_summary_
+    """
+    Handles the /help command.
+
+    Sends a message with help information, depending on the chat and the
+    status of the requested one.
 
     Args:
-        message (Message): _description_
+        message (Message): The incoming Message object.
+        bot (Bot): The Bot instance.
     """
     user = message.from_user
     logger.info(f"handling /help cmd from {user.id=}")
-    message_builder = MessageTextBuilder()
-    link = "@"+(await bot.get_me()).username
+    message_builder = MessageTextBuilder(lang=user.language_code)
+    link = "t.me/"+(await bot.get_me()).username
     if (message.from_user.id == message.chat.id):
         logger.debug(f"cmd was printed in personal chat {user.id=}")
         await message.answer(
-            await message_builder.on_help_personal()
+            await message_builder.on_help_personal("")
         )
         return
-    member = message.chat.get_member(user.id)
+    member = await message.chat.get_member(user.id)
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(
-            f"cmd was printed by admin {member.user_id=} in "
-            +f"{member.chat_id=}")
+            f"cmd was printed by admin {member.user.id=} in "
+            +f"{message.chat.id=}")
         await message.answer(
-            await message_builder.on_help_admin(user)
+            await message_builder.on_help_admin(link)
         )
     else:
         logger.debug(
-            f"cmd was printed by regular member {member.user_id=} in "
-            +f"{member.chat_id=}")    
+            f"cmd was printed by regular member {member.user.id=} in "
+            +f"{message.chat.id=}")    
         await message.answer(
-            await message_builder.on_help()
+            await message_builder.on_help(link)
         )
         
 
