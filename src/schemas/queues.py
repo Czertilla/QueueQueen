@@ -33,10 +33,13 @@ class SUserQueueCrudResponse(BaseModel):
             or None if not available.
         user (SUser | None): The user involved in the operation,
             or None if not available.
+        is_already (bool): Indicates if the user was already
+            (not) in the queue.
     """
 
     queue_id: UUID | None
     user: SUser | None
+    is_already: bool = False
 
     class Config:
         from_attributes = True
@@ -52,6 +55,8 @@ class SAddUserResponse(SUserQueueCrudResponse):
             or None if not available.
         user (SUser | None): The user involved in the operation,
             or None if not available.
+        is_already (bool): Indicates if the user was already
+            (not) in the queue.
         position (int): The position of the user in the queue.
     """
 
@@ -74,5 +79,4 @@ class SRemoveUserResponse(SUserQueueCrudResponse):
             to notify, or None if no notification is needed.
     """
 
-    is_already: bool = False
     notificate_target: int | None = None
