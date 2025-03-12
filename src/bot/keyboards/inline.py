@@ -70,13 +70,14 @@ class InlineBuilder(InlineKeyboardBuilder):
         return InlineKeyboardMarkup(inline_keyboard=buttons)
     
     async def invite_kb(self, bot_username: str) -> InlineKeyboardMarkup:
-        """_summary_
+        """
+        Creates an inline keyboard to invite bot to chat.
 
         Args:
-            bot_username (str): _description_
+            bot_username (str): bot username to put it in callback link
 
         Returns:
-            InlineKeyboardMarkup: _description_
+            InlineKeyboardMarkup:  An inline keyboard object with invite button.
         """
         buttons = [
             [
