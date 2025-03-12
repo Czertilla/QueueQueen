@@ -106,6 +106,22 @@ class MessageTextBuilder:
             LocaleKey.not_admin_alert, username=username
         )
 
+    async def on_personal_start(self, first_name: str) -> str:
+        """
+        Returns a welcome message notifying that the bot can now send 
+        notifications.
+
+        Args:
+            first_name (str): The first name of tg user, bot welcome
+
+        Returns:
+            str: The localized message.
+        """
+        logger.debug("Retrieving welcome message")
+        return await self.get_phrase(
+            LocaleKey.personal_start, first_name=first_name
+        )
+
     async def on_your_turn_ntf(self, queue_id: UUID) -> str:
         """
         Returns a notification message when it's the user's turn.
