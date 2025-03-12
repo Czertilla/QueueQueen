@@ -68,3 +68,24 @@ class InlineBuilder(InlineKeyboardBuilder):
             ]
         ]
         return InlineKeyboardMarkup(inline_keyboard=buttons)
+    
+    async def invite_kb(self, bot_username: str) -> InlineKeyboardMarkup:
+        """_summary_
+
+        Args:
+            bot_username (str): _description_
+
+        Returns:
+            InlineKeyboardMarkup: _description_
+        """
+        buttons = [
+            [
+                InlineKeyboardButton(
+                    text= await self.text_builder.get_phrase(
+                        LocaleKey.invite_button
+                    ),
+                    url=f"https://t.me/{bot_username}?startgroup=start"
+                )
+            ]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=buttons)
