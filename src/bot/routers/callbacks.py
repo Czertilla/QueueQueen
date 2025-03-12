@@ -22,7 +22,7 @@ async def quit(call: CallbackQuery, bot: Bot):
     user = call.from_user
     logger.info(f"handling {call.data=} from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     logger.debug(f"getting chat_id from {call.data=} to quit from queue")
     chat_id_str = call.data[len(CallbackPrefix.quit):]
     try:
@@ -55,7 +55,7 @@ async def kick(call: CallbackQuery, bot: Bot):
     user = call.from_user
     member = await bot.get_chat_member(call.message.chat.id, user.id)
     logger.info(f"handling {call.data=} from {user.id=}")
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member got not enouth rights to kick user")
         await call.message.answer(
@@ -103,7 +103,7 @@ async def cansel(call: CallbackQuery, bot: Bot):
     user = call.from_user
     member = await bot.get_chat_member(call.message.chat.id, user.id)
     logger.info(f"handling {call.data=} from {user.id=}")
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member got not enouth rights to kick user")
         await call.message.answer(

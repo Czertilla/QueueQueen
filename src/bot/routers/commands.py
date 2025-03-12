@@ -30,7 +30,7 @@ async def start(message: Message, bot: Bot) -> None:
     user = message.from_user
     logger.info(f"handling /start cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     if (message.chat.id == user.id):
         inline_builder = InlineBuilder(message_builder)
         bot_username = (await bot.get_me()).username
@@ -109,7 +109,7 @@ async def join(message: Message) -> None:
         user_schema, message.chat.id
     )
     await message.answer(
-        await MessageTextBuilder().on_user_queue_crud(response)
+        await MessageTextBuilder(lang=user.language_code).on_user_queue_crud(response)
     )
 
 
@@ -127,7 +127,7 @@ async def quit(message: Message, bot: Bot) -> None:
     user = message.from_user
     logger.info(f"handling /quit cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     response = await QueueService(uow).remove_user(user_schema, message.chat.id)
     if response.notificate_target is not None:
         await bot.send_message(
@@ -153,7 +153,7 @@ async def check(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /check cmd from {user.id=}")
     response = await QueueService(AllUOW()).get_queue_list(message.chat.id)
-    await message.answer(await MessageTextBuilder().on_queue_list(response))
+    await message.answer(await MessageTextBuilder(lang=user.language_code).on_queue_list(response))
 
 
 @router.message(Command("clear"))
@@ -171,7 +171,7 @@ async def clear(message: Message) -> None:
     await UserService(uow := AllUOW()).update_user(user)
     chat = message.chat
     member = await chat.get_member(user.id)
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member {user.id} is admin of {chat.id=}")
         response = await QueueService(uow).clear_queue(chat.id)
@@ -201,7 +201,7 @@ async def kick(message: Message, command: CommandObject) -> None:
     arguments = command.args
     user = message.from_user
     logger.info(f"handling /kick cmd with {arguments=} from {user.id=}")
-    message_builder = MessageTextBuilder()
+    message_builder = MessageTextBuilder(lang=user.language_code)
     chat = message.chat
     member = await chat.get_member(user.id)
     if not isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
