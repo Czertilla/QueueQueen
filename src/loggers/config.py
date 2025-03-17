@@ -2,6 +2,8 @@ import json
 import logging
 import logging.config
 from pathlib import Path
+import sys
+import traceback
 
 from .formats import FORMATS
 
@@ -30,8 +32,27 @@ class JSONFormatter(logging.Formatter):
             "module": record.module,
             "message": record.getMessage(),
         }
+        if record.exc_info:
+            log_entry["exception"] = {
+                "type": str(record.exc_info[0].__name__),  # Название исключения
+                "message": str(record.exc_info[1]),  # Текст ошибки
+                "traceback": "".join(traceback.format_exception(*record.exc_info))  # Полный traceback
+            }
         return json.dumps(log_entry, ensure_ascii=False)
 
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    """Глобальный обработчик необработанных исключений."""
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.critical(
+        "Unhandled exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
+
+sys.excepthook = handle_exception
 
 def setup():
     """Loads the logging configuration and creates necessary directories"""
