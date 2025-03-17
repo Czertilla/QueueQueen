@@ -23,5 +23,5 @@ FORMATS = {
     INFO: f"{act} {prc} {cg(lvl)} | {loc} - {msg}",
     WARNING: f"{act} {prc} {cy(lvl)} | {loc} - {cy(msg)}",
     ERROR: f"{act} {prc} {cr(lvl)} | {loc} - {cr(msg)} || {exc}",
-    CRITICAL: f"{act} {prc} {sb(br(lvl))} | {loc} - {sb(cr(msg))}",
+    CRITICAL: f"{act} {prc} {sb(br(lvl))} | {loc} - {sb(cr(msg))} || {exc}",
 }
