@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     VERSION: str
     """The version of this project, displays in messages and descripions"""
 
+    DEV_ID_LIST: list[int] = []
+    """The list of telegram ids of developers team"""
+
     model_config = SettingsConfigDict(env_file=environ, extra="ignore")
     """Configuration for Pydantic settings, defining how environment variables are loaded."""
 
@@ -87,4 +90,5 @@ def getSettings() -> Settings:
     Returns:
         Settings: The application settings instance.
     """
+    print(Settings().DEV_ID_LIST)
     return Settings()
