@@ -7,10 +7,10 @@ parent_directory = os.path.abspath(
     )
 sys.path.append(parent_directory)
 
-from src.bot import bot, dp
 from src.loggers import setup
-
 setup()
+from src.bot import bot, dp
+
 
 if __name__ == "__main__":
     asyncio.run(dp.start_polling(bot))
