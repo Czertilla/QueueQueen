@@ -3,7 +3,7 @@ from logging import getLogger
 from aiogram import Bot, Router, F
 from aiogram.types import CallbackQuery
 from aiogram.types import ChatMemberAdministrator, ChatMemberOwner
-
+from aiogram.exceptions import TelegramForbiddenError
 from bot.keyboards.inline import InlineBuilder
 from bot.messages.messages import MessageTextBuilder
 from services.queues import QueueService
@@ -38,11 +38,16 @@ async def quit(call: CallbackQuery, bot: Bot):
         return
     response = await QueueService(uow).remove_user(user_schema, chat_id)
     if response.notificate_target is not None:
-        await bot.send_message(
-            chat_id=response.notificate_target,
-            text=await message_builder.on_your_turn_ntf(response.queue_id),
-            reply_markup=await InlineBuilder(message_builder).quit_kb(chat_id)
-        )
+        try:
+            await bot.send_message(
+                chat_id=response.notificate_target,
+                text=await message_builder.on_your_turn_ntf(response.queue_id),
+                reply_markup=await InlineBuilder(message_builder).quit_kb(chat_id)
+            )
+        except TelegramForbiddenError as exc:
+            logger.warning(
+                "attempt to send notification to user.id="
+                + f"{response.notificate_target} was denied. Raised {exc=}")
     await call.message.edit_reply_markup()
     await bot.send_message(
         chat_id=chat_id,
