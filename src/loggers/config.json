@@ -10,6 +10,9 @@
     },
     "json": {
       "class": "src.loggers.config.JSONFormatter"
+    },
+    "tg": {
+      "class": "src.loggers.config.TGFormatter"
     }
   },
   "handlers": {
@@ -36,6 +39,11 @@
       "backupCount": 3,
       "filename": "logs/app.jsonl",
       "encoding": "utf8"
+    },
+    "tg_crit": {
+      "class": "src.loggers.handlers.TelegramLogHandler",
+      "level": "CRITICAL",
+      "formatter": "tg"
     }
   },
   "root": {
@@ -43,7 +51,8 @@
     "handlers": [
       "console",
       "file_debug",
-      "file_json"
+      "file_json",
+      "tg_crit"
     ]
   }
 }
