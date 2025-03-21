@@ -90,5 +90,4 @@ def getSettings() -> Settings:
     Returns:
         Settings: The application settings instance.
     """
-    print(Settings().DEV_ID_LIST)
     return Settings()

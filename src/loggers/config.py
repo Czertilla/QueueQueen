@@ -4,6 +4,7 @@ import logging.config
 from pathlib import Path
 import sys
 import traceback
+from html import escape
 
 from .formats import FORMATS
 
@@ -39,6 +40,19 @@ class JSONFormatter(logging.Formatter):
                 "traceback": "".join(traceback.format_exception(*record.exc_info))  # Полный traceback
             }
         return json.dumps(log_entry, ensure_ascii=False)
+    
+
+class TGFormatter(logging.Formatter):
+
+    def format(self, record: logging.LogRecord) -> str:
+        return f"""
+<b>timestamp</b>: <code>{self.formatTime(record, "%Y-%m-%d %H:%M:%S")}</code>
+<b>logger</b>: {record.name}
+<b>module</b>: {record.module}
+<b>message</b>: {record.getMessage()}
+<b>exception_type</b>: {"" if record.exc_info is None else record.exc_info[0].__name__}
+<b>exception_message</b>: { "" if record.exc_info is None else record.exc_info[1]}
+    """
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -47,8 +61,11 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
 
+    # Получаем последнюю точку, где произошла ошибка
+    tb_last_frame = traceback.extract_tb(exc_traceback)[-1]  # Последний кадр
+
     logging.critical(
-        "Unhandled exception",
+        f"Unhandled exception in {tb_last_frame.filename}:{tb_last_frame.lineno}",
         exc_info=(exc_type, exc_value, exc_traceback)
     )
 
