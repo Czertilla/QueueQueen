@@ -1,5 +1,5 @@
 from logging import getLogger, Logger
-from typing import Any
+from typing import Any, Generic, TypeVar
 from uuid import uuid4, UUID
 from sqlalchemy.types import JSON, DateTime
 from datetime import datetime
@@ -41,8 +41,9 @@ class Base(DeclarativeBase, IdMixin):
         datetime: DateTime(timezone=True)
     }
 
+Model = TypeVar("Model", bound=type[Base])
 
-class SQLAlchemyRepository(AbstractRepository):
+class SQLAlchemyRepository(Generic[Model], AbstractRepository):
     """
     Asynchronous repository for performing database operations using SQLAlchemy.
 
@@ -51,7 +52,7 @@ class SQLAlchemyRepository(AbstractRepository):
         logger (Logger): Logger instance for logging SQL operations.
     """
 
-    model = Base
+    model: type[Model]
     logger: Logger
 
     def __new__(cls, *args: Any, **kwargs: Any) -> "SQLAlchemyRepository":
@@ -99,7 +100,7 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         await self.session.flush()
 
-    async def get(self, id: UUID) -> model | None:
+    async def get(self, id: UUID) -> Model | None:
         """
         Retrieves a model instance by its primary key.
 
@@ -107,11 +108,11 @@ class SQLAlchemyRepository(AbstractRepository):
             id (UUID): The primary key of the instance.
 
         Returns:
-            model | None: The instance if found, otherwise None.
+            Model | None: The instance if found, otherwise None.
         """
         return await self.session.get(self.model, id)
 
-    async def get_with_options(self, id: UUID, options: tuple) -> model | None:
+    async def get_with_options(self, id: UUID, options: tuple) -> Model | None:
         """
         Retrieves a model instance by its primary key with additional query
             options.
@@ -126,12 +127,12 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = select(self.model).where(self.model.id == id).options(*options)
         return (await self.execute(stmt)).unique().scalar_one_or_none()
 
-    async def merge(self, data_orm: model, flush: bool = False) -> None:
+    async def merge(self, data_orm: Model, flush: bool = False) -> None:
         """
         Merges an instance into the session.
 
         Args:
-            data_orm (model): The ORM instance to merge.
+            data_orm (Model): The ORM instance to merge.
             flush (bool, optional): Whether to flush the session after merging.
                 Defaults to False.
         """
@@ -154,7 +155,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def add_n_return(
             self, data: dict[str, Any], options: tuple = ()
-    ) -> model:
+    ) -> Model:
         """
         Inserts a new instance and returns the full model instance.
 
@@ -163,7 +164,7 @@ class SQLAlchemyRepository(AbstractRepository):
             options (tuple, optional): SQLAlchemy query options. Defaults to ().
 
         Returns:
-            model: The created instance.
+            Model: The created instance.
         """
         stmt = insert(self.model).values(
             **data).returning(self.model).options(*options)
@@ -183,7 +184,7 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = update(self.model).where(self.model.id == id).values(**data)
         return await self.execute(stmt)
 
-    async def find_by_id(self, id: UUID) -> model | None:
+    async def find_by_id(self, id: UUID) -> Model | None:
         """
         Finds an instance by its primary key.
 
@@ -191,12 +192,12 @@ class SQLAlchemyRepository(AbstractRepository):
             id (UUID): The primary key of the instance.
 
         Returns:
-            model | None: The instance if found, otherwise None.
+            Model | None: The instance if found, otherwise None.
         """
         stmt = select(self.model).where(self.model.id == id)
         return (await self.execute(stmt)).scalar_one_or_none()
 
-    async def find_all(self, **filters: Any) -> list[model]:
+    async def find_all(self, **filters: Any) -> list[Model]:
         """
         Finds all instances that match the given filters.
 
@@ -204,7 +205,7 @@ class SQLAlchemyRepository(AbstractRepository):
             **filters (Any): Key-value pairs used to filter results.
 
         Returns:
-            list[model]: A list of matching instances.
+            list[Model]: A list of matching instances.
         """
         stmt = select(self.model).filter_by(**filters)
         result = await self.execute(stmt)
