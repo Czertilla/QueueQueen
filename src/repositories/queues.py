@@ -3,17 +3,17 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload, joinedload
 from database import BaseRepo
 from models.positions import PositionORM
-from models.queues import QueueORM
+from models.queues import QueueORM as Model
 
 
-class QueueRepo(BaseRepo):
+class QueueRepo(BaseRepo[Model]):
     """
     Repository class for handling queue-related database operations.
     """
 
-    model = QueueORM
+    model = Model
 
-    async def get_by_chat_id(self, chat_id: int) -> model | None:
+    async def get_by_chat_id(self, chat_id: int) -> Model | None:
         """
         Retrieves a queue by its chat ID.
 
@@ -31,7 +31,7 @@ class QueueRepo(BaseRepo):
         self.logger.debug(f"Queue found: {queue}")
         return queue
 
-    async def get_with_positions(self, id: UUID) -> model | None:
+    async def get_with_positions(self, id: UUID) -> Model | None:
         """
         Retrieves a queue with its positions preloaded.
 
@@ -72,7 +72,7 @@ class QueueRepo(BaseRepo):
         self.logger.debug(f"Position found: {position}")
         return position
 
-    async def add_position(self, queue: model, user_id: UUID) -> int:
+    async def add_position(self, queue: Model, user_id: UUID) -> int:
         """
         Adds a user to the queue if they are not already in it.
 
@@ -101,7 +101,7 @@ class QueueRepo(BaseRepo):
         return new_position
 
     async def remove_position(
-        self, queue: model, user_id: UUID
+        self, queue: Model, user_id: UUID
     ) -> tuple[bool, int | None]:
         """
         Removes a user's position from the queue.

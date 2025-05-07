@@ -4,17 +4,17 @@ from sqlalchemy.orm import selectinload
 from database import BaseRepo
 from logging import getLogger
 
-from models.users import UserORM
+from models.users import UserORM as Model
 
 logger = getLogger(__name__)
 
 
-class UserRepo(BaseRepo):
+class UserRepo(BaseRepo[Model]):
     """
     Repository for managing UserORM entities.
     """
 
-    model = UserORM
+    model = Model
 
     async def check_username(self, value: str) -> bool:
         """
@@ -28,13 +28,13 @@ class UserRepo(BaseRepo):
         """
         user = (
             await self.execute(
-                select(UserORM).
-                where(UserORM.username == value)
+                select(self.model).
+                where(self.model.username == value)
             )
         ).scalar_one_or_none()
         return user is not None
 
-    async def get_by_tgid(self, tgid: int) -> model:
+    async def get_by_tgid(self, tgid: int) -> Model:
         """
         Retrieves a user by their Telegram ID.
 
@@ -45,10 +45,10 @@ class UserRepo(BaseRepo):
             The UserORM object, or None if not found.
         """
         return (
-            await self.execute(select(UserORM).where(UserORM.tgid == tgid))
+            await self.execute(select(Model).where(Model.tgid == tgid))
         ).scalar_one_or_none()
 
-    async def get_with_positions(self, id: UUID) -> model | None:
+    async def get_with_positions(self, id: UUID) -> Model | None:
         """
         Retrieves a user with their associated positions.
 
@@ -66,7 +66,7 @@ class UserRepo(BaseRepo):
             )
         ).scalar_one_or_none()
 
-    async def get_by_username(self, username: str) -> model:
+    async def get_by_username(self, username: str) -> Model:
         """
         Retrieves a user by their Telegram username.
 
@@ -79,6 +79,6 @@ class UserRepo(BaseRepo):
         logger.debug(f"getting user by {username=}")
         return (
             await self.execute(
-                select(UserORM).where(UserORM.username == username)
+                select(Model).where(Model.username == username)
             )
         ).scalar_one_or_none()
