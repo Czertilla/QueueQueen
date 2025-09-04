@@ -4,6 +4,7 @@ en:
   button_cansel: "cansel"
   button_kick: "kick"
   button_invite: "add to chat"
+  button_join: "войти"
   button_quit: "quit"
   cmd_kick_invalid: |-
     command <blockquote>/kick %{args}</blockquote> is invalid

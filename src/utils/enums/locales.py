@@ -23,6 +23,7 @@ class LocaleKey(str, Enum):
     queue_404 = "queue_404"
     queue_cleared = "queue_cleared"
     queue_list_header = "queue_list_header"
+    join_button = "button_join"
     quit_button = "button_quit"
     user_404 = "user_404"
     user_not_in_queue = "user_not_in_queue"

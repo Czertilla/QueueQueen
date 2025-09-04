@@ -4,6 +4,7 @@ ru:
   button_cansel: "отмена"
   button_kick: "исключить"
   button_invite: "добавить в чат"
+  button_join: "войти"
   button_quit: "выйти"
   cmd_kick_invalid: |-
     команда <blockquote>/kick %{args}</blockquote> неверна
