@@ -7,7 +7,7 @@ from models.positions import PositionORM
 
 class QueueORM(Base):
     """
-    SQLAlchemy model representing a queue.
+    SQLAlchemy model representing a queue
 
     Attributes:
         chat_id (int | None): The chat ID associated with the queue, can be None.

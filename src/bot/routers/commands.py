@@ -6,7 +6,6 @@ from aiogram.filters import CommandStart, Command, CommandObject
 from bot.keyboards.inline import InlineBuilder
 from bot.messages.messages import MessageTextBuilder
 from schemas.queues import SRemoveUserResponse
-from schemas.users import SUser
 from services.queues import QueueService
 from services.users import UserService
 from units_of_work.all import AllUOW
@@ -32,20 +31,25 @@ async def start(message: Message, bot: Bot) -> None:
     logger.info(f"handling /start cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
     message_builder = MessageTextBuilder(lang=user.language_code)
-    if (message.chat.id == user.id):
+    if message.chat.id == user.id:
         inline_builder = InlineBuilder(message_builder)
         bot_username = (await bot.get_me()).username
         await message.answer(
             await message_builder.on_personal_start(user.first_name),
-            reply_markup=await inline_builder.invite_kb(bot_username))
+            reply_markup=await inline_builder.invite_kb(bot_username),
+        )
         return
     logger.debug(f"getting chat memger info by {user.id=}")
     member = await message.chat.get_member(user.id)
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(f"member {user.id=} got enough rights to start bot")
         queue_list = await QueueService(uow).get_queue_list(
-            message.chat.id, True)
-        await message.answer(await message_builder.on_queue_list(queue_list))
+            message.chat.id, True
+        )
+        await message.answer(
+            await message_builder.on_queue_list(queue_list),
+            reply_markup=await InlineBuilder(message_builder).queue_kb(),
+        )
     else:
         logger.debug(f"member got not enouth rights to start bot")
         await message.answer(
@@ -68,28 +72,24 @@ async def help(message: Message, bot: Bot) -> None:
     user = message.from_user
     logger.info(f"handling /help cmd from {user.id=}")
     message_builder = MessageTextBuilder(lang=user.language_code)
-    link = "t.me/"+(await bot.get_me()).username
-    if (message.from_user.id == message.chat.id):
+    link = "t.me/" + (await bot.get_me()).username
+    if message.from_user.id == message.chat.id:
         logger.debug(f"cmd was printed in personal chat {user.id=}")
-        await message.answer(
-            await message_builder.on_help_personal("")
-        )
+        await message.answer(await message_builder.on_help_personal(""))
         return
     member = await message.chat.get_member(user.id)
     if isinstance(member, ChatMemberAdministrator | ChatMemberOwner):
         logger.debug(
             f"cmd was printed by admin {member.user.id=} in "
-            + f"{message.chat.id=}")
-        await message.answer(
-            await message_builder.on_help_admin(link)
+            + f"{message.chat.id=}"
         )
+        await message.answer(await message_builder.on_help_admin(link))
     else:
         logger.debug(
             f"cmd was printed by regular member {member.user.id=} in "
-            + f"{message.chat.id=}")
-        await message.answer(
-            await message_builder.on_help(link)
+            + f"{message.chat.id=}"
         )
+        await message.answer(await message_builder.on_help(link))
 
 
 @router.message(Command("join"))
@@ -105,11 +105,11 @@ async def join(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /join cmd from {user.id=}")
     user_schema = await UserService(uow := AllUOW()).update_user(user)
-    response = await QueueService(uow).add_user(
-        user_schema, message.chat.id
-    )
+    response = await QueueService(uow).add_user(user_schema, message.chat.id)
     await message.answer(
-        await MessageTextBuilder(lang=user.language_code).on_user_queue_crud(response)
+        await MessageTextBuilder(lang=user.language_code).on_user_queue_crud(
+            response
+        )
     )
 
 
@@ -136,12 +136,13 @@ async def quit(message: Message, bot: Bot) -> None:
                 text=await message_builder.on_your_turn_ntf(response.queue_id),
                 reply_markup=await InlineBuilder(message_builder).quit_kb(
                     message.chat.id
-                )
+                ),
             )
         except TelegramForbiddenError as exc:
             logger.warning(
                 "attempt to send notification to user.id="
-                + f"{response.notificate_target} was denied. Raised {exc=}")
+                + f"{response.notificate_target} was denied. Raised {exc=}"
+            )
     await message.answer(await message_builder.on_remove_user(response))
 
 
@@ -158,7 +159,12 @@ async def check(message: Message) -> None:
     user = message.from_user
     logger.info(f"handling /check cmd from {user.id=}")
     response = await QueueService(AllUOW()).get_queue_list(message.chat.id)
-    await message.answer(await MessageTextBuilder(lang=user.language_code).on_queue_list(response))
+    await message.answer(
+        await (mb := MessageTextBuilder(lang=user.language_code)).on_queue_list(
+            response
+        ),
+        reply_markup=await InlineBuilder(mb).queue_kb(),
+    )
 
 
 @router.message(Command("clear"))
@@ -193,14 +199,14 @@ async def kick(message: Message, command: CommandObject) -> None:
     """
     Handles the /kick command to remove a user from the queue.
 
-    This function checks if the sender is an admin and processes the 
-    provided argument to determine the target user. If valid, it attempts 
+    This function checks if the sender is an admin and processes the
+    provided argument to determine the target user. If valid, it attempts
     to remove the user from the queue and returns an appropriate response.
 
     Args:
-        message (Message): The message object containing details of the 
+        message (Message): The message object containing details of the
             command sender and chat.
-        command (CommandObject): The command object containing arguments 
+        command (CommandObject): The command object containing arguments
             passed with the /kick command.
     """
     arguments = command.args
@@ -216,9 +222,11 @@ async def kick(message: Message, command: CommandObject) -> None:
         )
         return
     logger.debug(f"member {user.id} is admin of {chat.id=}")
-    if not isinstance(arguments, str) or not (
-        isdigit := arguments.isdigit()
-    ) and not match(r'@[A-Za-z_][A-Za-z0-9_]+', arguments):
+    if (
+        not isinstance(arguments, str)
+        or not (isdigit := arguments.isdigit())
+        and not match(r"@[A-Za-z_][A-Za-z0-9_]+", arguments)
+    ):
         await message.reply(
             text=await message_builder.on_ivalid_command("kick", arguments)
         )
@@ -235,9 +243,9 @@ async def kick(message: Message, command: CommandObject) -> None:
         return
     keyboard = (
         await InlineBuilder(message_builder).kick_kb(response.user.tgid)
-        if response.user is not None and not response.is_already else None
+        if response.user is not None and not response.is_already
+        else None
     )
     await message.answer(
-        text=await message_builder.on_cmd_kick(response),
-        reply_markup=keyboard
+        text=await message_builder.on_cmd_kick(response), reply_markup=keyboard
     )
