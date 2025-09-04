@@ -17,6 +17,11 @@ services:
       - type: bind
         source: ./logs/
         target: /QueueQueen/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=myresolver"
 
   traefik:
     image: traefik:v3.4
