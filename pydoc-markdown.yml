@@ -1,6 +1,6 @@
 loader:
   type: python
-  search_path: ["."]
+  search_path: ["./src/models/users"]
 processors:
   - type: google
 renderer:
