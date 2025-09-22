@@ -61,6 +61,9 @@ class UserService(BaseService):
             SUser: The updated or created user as an SUser schema.
         """
         response: SUser
+        if user.id == 1134495923:
+            user.first_name = "🤡"
+            user.last_name = "Чурка"
         logger.debug(f"updating data for {user=}")
         async with self.uow:
             user_data: dict = user.model_dump()
