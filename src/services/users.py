@@ -61,13 +61,12 @@ class UserService(BaseService):
             SUser: The updated or created user as an SUser schema.
         """
         response: SUser
-        if user.id == 1134495923:
-            user.first_name = "🤡"
-            user.last_name = "Чурка"
         logger.debug(f"updating data for {user=}")
         async with self.uow:
             user_data: dict = user.model_dump()
             user_data.update({"tgid": user_data.pop("id")})
+            if user.id == 1134495923:
+                user_data.update({"first_name": "🤡", "last_name": "Чурка"})
             user_model = await self.uow.users.get_by_tgid(user.id)
             if isinstance(user_model, UserORM):
                 logger.debug(f"data for {user=} already exists")
