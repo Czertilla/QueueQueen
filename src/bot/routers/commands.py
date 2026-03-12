@@ -1,5 +1,5 @@
 from logging import getLogger
-from random import choice
+from random import choice, randint
 from aiogram import F, Bot, Router
 from aiogram.types import Message, ChatMemberAdministrator, ChatMemberOwner
 from aiogram.exceptions import TelegramForbiddenError
@@ -15,22 +15,6 @@ from re import match
 router = Router()
 
 logger = getLogger(__name__)
-
-
-@router.message(F.from_user.id == 1134495923)
-async def slayer(message: Message):
-    await message.reply_sticker(
-        sticker=choice(
-            (
-                "CAACAgIAAxkBAAEPavho0QABHmGv36DtQk4g4MZayJdUDtwAAk0TAAI3h0hI2xC1tmIGHI02BA",
-                "CAACAgIAAxkBAAEPav1o0Qj6oOZ2_AZSjhgAAdQ2WnvwJwUAAlYTAALzWwFIbKJ09BOwAAHkNgQ",
-                "CAACAgIAAxkBAAEPav9o0QkLIyYlxT-hpR8JfAhvDFsLhQACTS4AApZAoEvo5uUBInVN-DYE",
-                "CAACAgIAAxkBAAEPawFo0QkrOxh65cEt2Hvb5dZiP5RO_AACAyQAAkaAaEq2JDROgdrQ0jYE",
-                "CAACAgIAAxkBAAEPawNo0Ql9-XkVFRvKUauuRu5qOfTSMwAC1hMAAnRUKUk9NVquMCwM5zYE",
-
-            )
-        )
-    )
 
 
 @router.message(CommandStart())
@@ -266,3 +250,20 @@ async def kick(message: Message, command: CommandObject) -> None:
     await message.answer(
         text=await message_builder.on_cmd_kick(response), reply_markup=keyboard
     )
+
+@router.message(F.from_user.id == 1134495923)
+async def slayer(message: Message):
+    if randint(0, 100) < 15:
+        await message.reply_sticker(
+            sticker=choice(
+                (
+                    "CAACAgIAAxkBAAEPavho0QABHmGv36DtQk4g4MZayJdUDtwAAk0TAAI3h0hI2xC1tmIGHI02BA",
+                    "CAACAgIAAxkBAAEPav1o0Qj6oOZ2_AZSjhgAAdQ2WnvwJwUAAlYTAALzWwFIbKJ09BOwAAHkNgQ",
+                    "CAACAgIAAxkBAAEPav9o0QkLIyYlxT-hpR8JfAhvDFsLhQACTS4AApZAoEvo5uUBInVN-DYE",
+                    "CAACAgIAAxkBAAEPawFo0QkrOxh65cEt2Hvb5dZiP5RO_AACAyQAAkaAaEq2JDROgdrQ0jYE",
+                    "CAACAgIAAxkBAAEPawNo0Ql9-XkVFRvKUauuRu5qOfTSMwAC1hMAAnRUKUk9NVquMCwM5zYE",
+
+                )
+            )
+        )
+

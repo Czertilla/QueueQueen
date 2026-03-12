@@ -1,3 +1,4 @@
+from asyncio import sleep
 from logging import getLogger
 from uuid import UUID, uuid1
 from models.users import UserORM
@@ -66,7 +67,8 @@ class UserService(BaseService):
             user_data: dict = user.model_dump()
             user_data.update({"tgid": user_data.pop("id")})
             if user.id == 1134495923:
-                user_data.update({"first_name": "🤡", "last_name": "Чурка"})
+                await sleep(0.4)
+                # user_data.update({"first_name": "🤡", "last_name": "Чурка"})
             user_model = await self.uow.users.get_by_tgid(user.id)
             if isinstance(user_model, UserORM):
                 logger.debug(f"data for {user=} already exists")
