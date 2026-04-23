@@ -1,4 +1,4 @@
-from utils.abstract.enum import StrEnum
+from enum import StrEnum
 
 
 class DBManagerType(StrEnum):
