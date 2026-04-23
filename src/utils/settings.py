@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from os import environ
 from dotenv import load_dotenv
 
-from utils.enums.settings import DBManagerType
+from utils.enums.settings import DBManagerType, TgBotFeedType
 from aiogram.enums import ParseMode
 
 load_dotenv()
@@ -53,6 +53,8 @@ class Settings(BaseSettings):
 
     BOT_PARSE_MODE: ParseMode = ParseMode.HTML
     """The message parsing mode for the Telegram bot (e.g., Markdown, HTML)."""
+
+    BOT_TG_FEED_TYPE: TgBotFeedType = TgBotFeedType.__default__
 
     VERSION: str
     """The version of this project, displays in messages and descripions"""

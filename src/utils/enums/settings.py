@@ -1,8 +1,23 @@
-from utils.abstract.enum import AEnum
+from utils.abstract.enum import StrEnum
 
 
-class DBManagerType(str, AEnum):
+class DBManagerType(StrEnum):
     sqlite = "sqlite"
     postgres = "postgres"
 
     __default__ = sqlite
+
+
+
+class AppArchitecture(StrEnum):
+    MICROSERVICES = "microservices"
+    MONOLITH = "monolith"
+
+    __default__ = MICROSERVICES
+
+
+class TgBotFeedType(StrEnum):
+    POLLING = "long-polling"
+    WEBHOOK = "web-hook"
+
+    __default__ = WEBHOOK

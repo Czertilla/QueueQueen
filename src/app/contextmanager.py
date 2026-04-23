@@ -1,8 +1,11 @@
 # from redis import asyncio as aioredis
+from asyncio import create_task
+
 from fastapi.concurrency import asynccontextmanager
 from collections.abc import AsyncIterator
 from fastapi import FastAPI
 
+from utils.enums.settings import TgBotFeedType
 from utils.settings import Settings
 from bot import bot, dp
 
@@ -24,11 +27,16 @@ async def startup(app: FastAPI):
     """
     # redis = aioredis.from_url("redis://localhost")
     # FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    await bot.set_webhook(
+    if (feed_type := settings.BOT_TG_FEED_TYPE) == TgBotFeedType.WEBHOOK:
+            await bot.set_webhook(
         url=f"{settings.BOT_TG_WEBHOOK}/webhook",
         allowed_updates=dp.resolve_used_update_types(),
         drop_pending_updates=True,
     )
+    elif feed_type == TgBotFeedType.POLLING:
+        await bot.delete_webhook()
+        create_task(dp.start_polling(bot))
+    
     ...  # Add other startup tasks here
 
 
@@ -42,7 +50,10 @@ async def shutdown(app: FastAPI):
     Args:
         app (FastAPI): The FastAPI application instance.
     """
-    await bot.delete_webhook()
+    if (feed_type := settings.BOT_TG_FEED_TYPE) == TgBotFeedType.WEBHOOK:
+            await bot.delete_webhook()
+    elif feed_type == TgBotFeedType.POLLING:
+        await dp.stop_polling()
     ...  # Add other shutdown tasks here
 
 
